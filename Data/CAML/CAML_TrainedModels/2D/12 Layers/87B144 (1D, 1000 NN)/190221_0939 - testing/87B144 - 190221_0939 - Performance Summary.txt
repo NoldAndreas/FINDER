@@ -1,0 +1,24 @@
+------------------------------------------------------
+87B144 - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus)
+------------------------------------------------------
+Training Points: 	500000
+Training Class Split:	0.5
+Validation Points: 	100000
+Validation Class Split:	0.5
+Testing Points: 	100000
+Testing Class Split:	0.5
+Prediction threshold: 	0.5
+
+Training Accuracy: 	93.862
+Training Loss: 	0.1672668206051588
+Validation Accuracy	93.887
+Validation Loss: 	0.16698585736095906
+Testing Accuracy	93.887
+Testing Loss: 	0.16698585736095906
+------------------------------------------------------
+Testing F1 Score: 	0.9381176622638211
+Testing Precision Score: 	0.9402485247942971
+Testing Recall Score: 	0.9381900000000001
+------------------------------------------------------
+
+

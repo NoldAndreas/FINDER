@@ -1,0 +1,5 @@
+---- 3TXKFS- Training Notes ----
+Training Pool Source: /home/dave/raid0/MultiTypes/1_prep_dNN(1-1000)_training/../2_training_pool/20190903-1318_nn1-1000_3labels_Trn_Val_Tes.pkl
+Data preparation method: Norm-Self
+---- User-supplied notes: ----
+Training simple layout on 1000 NN but using multiple labels instead of binary

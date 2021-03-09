@@ -1,0 +1,5 @@
+---- GAXJPR- Training Notes ----
+Training Pool Source: /home/dave/raid0/3D_train_sim/1_prep_dNN(1-1000)_training/../2_training_pool/20190213-1054-Train(250000C+250000NC)-Val(50000C+50000NC)-Test(50000C+50000NC).pkl
+Data preparation method: Norm-Self
+---- User-supplied notes: ----
+Trained on 3D dists

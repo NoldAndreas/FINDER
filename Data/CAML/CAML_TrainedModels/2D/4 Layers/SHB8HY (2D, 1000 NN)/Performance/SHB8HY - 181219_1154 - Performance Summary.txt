@@ -1,0 +1,20 @@
+------------------------------------------------------
+SHB8HY - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus)
+------------------------------------------------------
+Training Points: 	500000
+Training Class Split:	0.5
+Validation Points: 	100000
+Validation Class Split:	0.5
+Prediction threshold: 	0.5
+
+Training Accuracy: 	94.2672
+Training Loss: 	0.14882268397277593
+Validation Accuracy	94.021
+Validation Loss: 	0.15716573539376258
+------------------------------------------------------
+F1 Score: 	0.9402067345642086
+Precision Score: 	0.9403061841814446
+Recall Score: 	0.94021
+------------------------------------------------------
+
+

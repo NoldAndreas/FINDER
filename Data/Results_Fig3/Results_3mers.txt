@@ -1,0 +1,4 @@
+,algo,compute_time,false_positives_ratio,noise_ratio,results,seed,true_positives_ratio
+0,CAML_87B144,37.72900366783142,[],0.1,[],0,[]
+1,CAML_07VEJJ,9.490581274032593,[],0.1,[],0,[]
+2,FINDER_1D_loop,31.954158544540405,[],0.1,"{'sigma': 9.197044502157082, 'threshold': 10.0}",0,[]

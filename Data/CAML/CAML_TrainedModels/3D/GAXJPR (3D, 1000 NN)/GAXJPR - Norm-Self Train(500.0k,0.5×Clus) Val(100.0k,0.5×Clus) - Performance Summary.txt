@@ -1,0 +1,24 @@
+------------------------------------------------------
+GAXJPR - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus)
+------------------------------------------------------
+Training Points: 	500000
+Training Class Split:	0.5
+Validation Points: 	100000
+Validation Class Split:	0.5
+Testing Points: 	100000
+Testing Class Split:	0.5
+Prediction threshold: 	0.5
+
+Training Accuracy: 	97.6432
+Training Loss: 	0.06551356444647535
+Validation Accuracy	97.479
+Validation Loss: 	0.07317818104706704
+Testing Accuracy	97.479
+Testing Loss: 	0.07317818104706704
+------------------------------------------------------
+Testing F1 Score: 	0.9739499341428286
+Testing Precision Score: 	0.973954792820447
+Testing Recall Score: 	0.97395
+------------------------------------------------------
+
+

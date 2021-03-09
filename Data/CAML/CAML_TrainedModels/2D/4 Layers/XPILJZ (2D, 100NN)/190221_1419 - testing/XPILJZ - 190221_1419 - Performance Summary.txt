@@ -1,0 +1,24 @@
+------------------------------------------------------
+XPILJZ - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus)
+------------------------------------------------------
+Training Points: 	500000
+Training Class Split:	0.5
+Validation Points: 	100000
+Validation Class Split:	0.5
+Testing Points: 	100000
+Testing Class Split:	0.5
+Prediction threshold: 	0.5
+
+Training Accuracy: 	91.8666
+Training Loss: 	0.21329703925931454
+Validation Accuracy	91.81099999999999
+Validation Loss: 	0.21409276747226716
+Testing Accuracy	91.81099999999999
+Testing Loss: 	0.21409276747226716
+------------------------------------------------------
+Testing F1 Score: 	0.9179669846121201
+Testing Precision Score: 	0.9184596163043977
+Testing Recall Score: 	0.9179900000000001
+------------------------------------------------------
+
+

@@ -1,0 +1,12 @@
+matplotlib==3.2.2
+Shapely==1.7.0
+numpy==1.18.5
+seaborn==0.11.0
+pandas==1.0.5
+scipy==1.5.4
+tensorflow==2.3.0
+joblib==0.16.0
+h5py==2.10.0
+natsort==7.0.1
+Keras==2.4.3
+scikit_learn==0.24.1

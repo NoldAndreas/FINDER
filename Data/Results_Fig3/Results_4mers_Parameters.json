@@ -1,0 +1,32 @@
+{
+     "var_1_name": "noise_ratio",
+     "var_1_values": [
+          0.1
+     ],
+     "var_2_name": "seed",
+     "var_2_values": [
+          0
+     ],
+     "algos": [
+          "CAML_87B144",
+          "CAML_07VEJJ",
+          "FINDER_1D_loop"
+     ],
+     "n_side": 5,
+     "Delta_ratio": 1.0,
+     "noise_ratio": 0,
+     "seed": 0,
+     "unit_type": "Clusters_DNA_4mers",
+     "geometry": "free",
+     "params_algos": {
+          "dbscan": {
+               "min_samples": 10,
+               "eps": 10
+          },
+          "OPTICS": {
+               "min_samples": 20,
+               "xi": 0.05,
+               "max_eps": 100
+          }
+     }
+}

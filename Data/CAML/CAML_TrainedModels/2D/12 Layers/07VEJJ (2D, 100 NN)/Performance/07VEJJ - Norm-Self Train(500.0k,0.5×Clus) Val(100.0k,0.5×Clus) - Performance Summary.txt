@@ -1,0 +1,20 @@
+------------------------------------------------------
+07VEJJ - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus)
+------------------------------------------------------
+Training Points: 	500000
+Training Class Split:	0.5
+Validation Points: 	100000
+Validation Class Split:	0.5
+Prediction threshold: 	0.5
+
+Training Accuracy: 	92.35759999999999
+Training Loss: 	0.20575561784362792
+Validation Accuracy	92.438
+Validation Loss: 	0.2039802792787552
+------------------------------------------------------
+F1 Score: 	0.9243714058993322
+Precision Score: 	0.9245729864242245
+Recall Score: 	0.92438
+------------------------------------------------------
+
+

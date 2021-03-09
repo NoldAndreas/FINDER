@@ -1,0 +1,5 @@
+natsort==6.0.0
+graphviz==0.13
+joblib==0.14.0
+pydot==1.4.1
+pydot-ng==2.0.0
