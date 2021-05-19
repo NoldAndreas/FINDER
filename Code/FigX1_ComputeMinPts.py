@@ -22,15 +22,15 @@ import pickle
 #Parameters
 #************************************************
 #************************************************
-if(False):
+if(True):
     outputfolder = 'temp/';
     filename     = '/Users/andreas/Documents/NoiseRecognizer_WorkingVersion/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5';
 
     datascale = 158; #=81/512*1000
     #Define window to analyse
-    xInt = [20000,30000];
-    yInt = [20000,30000];
-elif(True):
+    xInt = [20000,25000];#30000
+    yInt = [20000,25000];#30000
+elif(False):
     outputfolder = '/Users/andreas/Documents/NoiseRecognizer_WorkingVersion/MikeData/';
     filename     = outputfolder +'XC_red.txt'
     datascale    = 1; #=81/512*1000
@@ -38,7 +38,7 @@ elif(True):
     xInt = [0,np.Infinity];
     yInt = [0,np.Infinity];
 
-thresholds = [5,10,15,20];
+thresholds = [10];#[5,10,15,20];
 
 #************************************************
 #************************************************
@@ -126,7 +126,7 @@ def GetDensities(info,n):
 
 if(filename[-3:]=="txt"):
     XC = np.loadtxt(filename);
-elif(filename[-3:]=="hdf5"):
+elif(filename[-4:]=="hdf5"):
 #filename = '/Users/andreas/Documents/NoiseRecognizer_WorkingVersion/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5';
     f             = h5py.File(filename, 'r')    
     dset          = f['locs'];
@@ -148,7 +148,7 @@ elif(False):
     labels = Clustering_CAML('CAML_07VEJJ',XC,datafolder=basefolder);           
     with open(outputfolder+'temp.pickle','ab') as handle:
         pickle.dump({'labels':labels,'threshold':'CAML_07VEJJ'}, handle,protocol=pickle.HIGHEST_PROTOCOL)    
-elif(False):
+elif(True):
     all_labels    = [];
     for threshold in thresholds:
         FD             = Finder_1d(algo="DbscanLoop",threshold=threshold);
@@ -172,7 +172,7 @@ else:
             while True:
                 all_info = pickle.load(fr);
 
-                #PlotScatter(all_info);                
+                PlotScatter(all_info);                
                 
                 #edges = np.linspace(0,500,101);
                 #cluster_sizes = GetClusterSizes(all_info['labels']);
@@ -182,7 +182,7 @@ else:
                 
                 cluster_sizes,diams_by_pt = GetDiameters(all_info['labels']);
                 edges = np.linspace(0,5,101);                
-                sns.histplot(cluster_sizes,ax=axsS[i],kde=True,shrink=0.8,bins=edges);
+                sns.histplot(cluster_sizes,ax=axsS[i],kde=True,shrink=0.8);#,bins=edges);
                 #axsS[i].set_xlim(np.min(edges),np.max(edges));
                 axsS[i].set_title(str(all_info['threshold']));                
                            
