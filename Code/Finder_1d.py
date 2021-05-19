@@ -29,9 +29,10 @@ class Finder_1d:
     def __init__(self,threshold=10,points_per_dimension=15,algo="DbscanLoop"):
         self.threshold           = np.int(threshold);
         self.no_points_sigma     = points_per_dimension;
-        self.no_points_thresholds = 5;
+        self.no_points_thresholds = points_per_dimension;
         self.algo                = algo;
         self.one_two_d           = "twoD";
+        self.minmax_threshold    = [3,30];
 
     #**************************************************
     # fit
@@ -43,6 +44,8 @@ class Finder_1d:
         #Step 1: Get min max of threshold and sigma
         if(self.one_two_d == "oneD"):
             params = self.__getParams_Sigmas(XC);
+        if(self.one_two_d == "oneD_thresholds"):
+            params = self.__getParams_Thresholds(XC);            
         elif(self.one_two_d == "twoD"):
             params = self.__getParams_SigmasThresholds(XC);
         
@@ -83,8 +86,9 @@ class Finder_1d:
     
     def __computeCenters_Radii(self,XC,PS):
         centers = [];
-        radii   = [];        
-        for i,ps in enumerate(PS): 
+        radii   = [];
+
+        for i, ps in PS.iterrows():        
             no_clusters = np.max(ps["labels"]) + 1;
                         
             centers_i = np.zeros((no_clusters,2));
@@ -97,7 +101,6 @@ class Finder_1d:
                 c                = np.median(XCm,axis=0);
                 centers_i[icl,:] = c;
                 radii_i[icl]     = np.max(np.linalg.norm(XCm - c,axis=1));
-                #np.linalg.norm(np.max(XCm,axis=0) - np.min(XCm,axis=0));
         
             centers.append(centers_i);
             radii.append(radii_i);
@@ -111,8 +114,7 @@ class Finder_1d:
         minmax_sigma = self.__determine_sigma_boundaries(XC);
         sigmas       = self.__getLogDistribution(minmax_sigma[0],minmax_sigma[1],self.no_points_sigma);                
         
-        minmax_threshold = [3,30];
-        thresholds       = self.__getLogDistribution(minmax_threshold[0],minmax_threshold[1],self.no_points_thresholds);                
+        thresholds       = self.__getLogDistribution(self.minmax_threshold[0],self.minmax_threshold[1],self.no_points_thresholds);                
         thresholds       = np.unique(np.round(thresholds));
         
         s_all = [];
@@ -132,6 +134,30 @@ class Finder_1d:
         sigmas        = self.__getLogDistribution(minmax_sigma[0],minmax_sigma[1],self.no_points_sigma);                
         params        = pd.DataFrame(data={"sigma":sigmas,\
                                            "threshold":self.threshold*np.ones_like(sigmas)});
+        return params
+    
+    def __getParams_Thresholds(self,XC):
+        
+        k         = 10;    
+        # initialize model
+        neigh = NearestNeighbors(n_neighbors=k, n_jobs=-1)
+        # train for getting nearest neighbour
+        neigh.fit(XC);
+        dist_, ind = neigh.kneighbors(XC);
+    
+        # We have no use of indices here
+        # dist is a 2 dimensional array of shape (10000, 9) in which each row is list of length 9. This row contain distances to all 9 nearest points. But we need distance to only 9th nearest point. So
+        nPt_distance = [dist_[i][k - 1] for i in range(len(dist_))]
+        
+        #CD_sorted = np.sort(dist.squareform(dist.pdist(XC)),axis=1);      
+        sigma = np.quantile(nPt_distance,0.5);
+        
+        
+        thresholds = self.__getLogDistribution(self.minmax_threshold[0],self.minmax_threshold[1],self.no_points_sigma);                
+        thresholds = np.unique(np.round(thresholds));
+         
+        params     = pd.DataFrame(data={"sigma":sigma*np.ones_like(thresholds),\
+                                        "threshold":thresholds});
         return params
     #**************************************************    
     # Check if number of points is too low and adjust 
@@ -180,20 +206,13 @@ class Finder_1d:
     #**************************************************
     def __phaseSpace(self,XC,params):
         
-#        ps = [];
         labels_all = [];
         times      = [];
         
-        for index, param in params.iterrows():
-        #for sigma in sigmas:            
+        for index, param in params.iterrows():          
             t1 = time.time()   
             labels_ = self.ComputeClusters(param['sigma'],param['threshold'],XC);
             t2 = time.time()                                
- #           datapoint = {"labels":labels_,\
-  #                       "sigma":param['sigma'],\
-   #                      "threshold":param['threshold'],\
-    #                     "time":t2-t1};
-     #       ps.append(datapoint)
             labels_all.append(labels_);
             times.append(t2-t1);
         
@@ -230,8 +249,6 @@ class Finder_1d:
         
         n = len(PS);
     
-        sigmas                   = np.zeros(shape=(n,))
-        thresholds               = np.zeros(shape=(n,),dtype=np.int)         
         no_clusters              = np.zeros(shape=(n,),dtype=np.int)                     
         no_locs                  = np.zeros(shape=(n,),dtype=np.int) 
         times                    = np.zeros(shape=(n,))
@@ -248,56 +265,48 @@ class Finder_1d:
         #***************************        
         ###
         t1 = time.time();
-        for i in np.arange(n):
+        for i, ps in PS.iterrows():       
             for j in np.arange(i+1):            
                 if(not (i==j)):
                     score = self.__getSimilarityScore(i,j,PS,centers,radii);
-                    similarityScoreMatrix[j,i] = score;
-                    similarityScoreMatrix[i,j] = score;
+                    similarityScoreMatrix[j,i] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
+                    similarityScoreMatrix[i,j] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
                 else:
-                    similarityScoreMatrix[i,j] = np.max(PS[i]["labels"]) + 1;
+                    similarityScoreMatrix[i,j] = np.max(ps["labels"]) + 1;
         print("Computing similarity scores: "+str(np.round(time.time()-t1,2))+" seconds");
         
         #***************************
         # Collect data
-        #***************************        
-        for i,ps in enumerate(PS):  
-            thresholds[i]          = ps["threshold"];
-            sigmas[i]              = ps["sigma"];  
-            labels_                = ps["labels"];
-            no_clusters[i]         = np.int(np.max(labels_) + 1);
+        #***************************    
+        
+        for i, ps in PS.iterrows():         
+            no_clusters[i]         = np.int(np.max(ps["labels"]) + 1);
             similarityScore[i]     = np.sum(similarityScoreMatrix[i,:]);
             times[i]               = ps["time"];
         
-        data = np.asarray([no_clusters,no_locs,sigmas,thresholds,times,similarityScore]);
-        cols_ = ["no_clusters","no_locs","sigmas","thresholds","time","similarityScore"];
-        df = pd.DataFrame(data.T,columns=cols_);
+        PS["no_clusters"]     = no_clusters;
+        PS["time"]            = times;        
+        PS["similarityScore"] = similarityScore;                
                 
-        return df    
+        return PS
     
     
     #**************************************************
     # __findRelevantClusters
     #**************************************************                
-    def __get_consensus_clustering(self,phasespace,XC):
+    def __get_consensus_clustering(self,PS,XC):
                
-        similarity        = np.asarray(phasespace["similarityScore"]);
+        similarity        = np.asarray(PS["similarityScore"]);
         
         max_score = np.max(similarity);
-        mark       = (similarity ==max_score);
-        
-        sigma_selected     = (np.asarray(phasespace["sigmas"]))[mark];    
-        threshold_selected = (np.asarray(phasespace["thresholds"]))[mark];
-        
-        if(np.sum(mark)>1):
-            sigma_selected = sigma_selected[-1];
-            threshold_selected = threshold_selected[-1]
-        else:
-            sigma_selected = sigma_selected[0];
-            threshold_selected = threshold_selected[0]
 
+        idx        = np.argwhere(similarity == max_score)[-1][0]
+        
+        sigma_selected     = PS.loc[idx,'sigma'];
+        threshold_selected = PS.loc[idx,"threshold"];
+        
 
-        labels = self.ComputeClusters(sigma_selected,threshold_selected,XC);
+        labels = PS.loc[idx,'labels'];
         selected_parameters =  {"sigma":sigma_selected,
                                 "threshold":threshold_selected}; 
 
@@ -309,8 +318,8 @@ class Finder_1d:
     #************************************************** 
     def __getSimilarityScore(self,i,j,PS,centers,radii):
         
-        labels_1  = PS[i]["labels"];
-        labels_2  = PS[j]["labels"];
+        labels_1  = PS.loc[i,"labels"];
+        labels_2  = PS.loc[j,"labels"];
         radii_1   = radii[i];
         radii_2   = radii[j];
         centers_1 = centers[i];
