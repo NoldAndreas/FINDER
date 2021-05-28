@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.cluster import DBSCAN 
 from DbscanLoop import DbscanLoop
 from sklearn.neighbors import NearestNeighbors
+from ProgressBar import printProgressBar
 
 #**************************************************
 # FINDER
@@ -38,16 +39,18 @@ class Finder_1d:
     # fit
     #**************************************************
             
-    def fit(self,XC):
-        
+    def fit(self,XC,XC_params=[]):
+ 
+        if(XC_params==[]):
+            XC_params = XC;
         
         #Step 1: Get min max of threshold and sigma
         if(self.one_two_d == "oneD"):
-            params = self.__getParams_Sigmas(XC);
+            params = self.__getParams_Sigmas(XC_params);
         if(self.one_two_d == "oneD_thresholds"):
-            params = self.__getParams_Thresholds(XC);            
+            params = self.__getParams_Thresholds(XC_params);            
         elif(self.one_two_d == "twoD"):
-            params = self.__getParams_SigmasThresholds(XC);
+            params = self.__getParams_SigmasThresholds(XC_params);
         
         #Step 2: Compute phase spaces
         phasespace    = self.__phaseSpace(XC,params);                
@@ -265,7 +268,8 @@ class Finder_1d:
         #***************************        
         ###
         t1 = time.time();
-        for i, ps in PS.iterrows():       
+        printProgressBar(0, len(PS), prefix = 'Progress:', suffix = 'Complete', length = 50);      
+        for i, ps in PS.iterrows():    
             for j in np.arange(i+1):            
                 if(not (i==j)):
                     score = self.__getSimilarityScore(i,j,PS,centers,radii);
@@ -273,6 +277,7 @@ class Finder_1d:
                     similarityScoreMatrix[i,j] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
                 else:
                     similarityScoreMatrix[i,j] = np.max(ps["labels"]) + 1;
+            printProgressBar(i + 1, len(PS), prefix = 'Progress:', suffix = 'Complete', length = 50)                    
         print("Computing similarity scores: "+str(np.round(time.time()-t1,2))+" seconds");
         
         #***************************
@@ -296,9 +301,9 @@ class Finder_1d:
     #**************************************************                
     def __get_consensus_clustering(self,PS,XC):
                
-        similarity        = np.asarray(PS["similarityScore"]);
+        similarity = np.asarray(PS["similarityScore"]);
         
-        max_score = np.max(similarity);
+        max_score  = np.max(similarity);
 
         idx        = np.argwhere(similarity == max_score)[-1][0]
         
