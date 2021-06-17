@@ -1,6 +1,8 @@
 *.pdf
+*.tif
 Code/__pycache__
 Code/CAML/__pycache__
 Data/CAML/Output
 Code/.spyproject/
 Code/temp/
+Code/.ipynb_checkpoints/
