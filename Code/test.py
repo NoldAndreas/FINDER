@@ -5,17 +5,20 @@ Created on Thu May 27 15:11:46 2021
 
 @author: andreas
 """
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
 import time
-from ProgressBar import printProgressBar
+import seaborn as sns
+import sys
+from Finder_1d import Finder_1d
+from GridSampler import GridSampler
+import scipy.stats
 
-# A List of Items
-items = list(range(0, 57))
-l = len(items)
 
-# Initial call to print 0% progress
-printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
-for i, item in enumerate(items):
-    # Do stuff...
-    time.sleep(0.1)
-    # Update Progress Bar
-    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+#filename = "../../MikeData/EGFR-P1-ATTO655_cell_2_MMImages.ome_locs_render_al_linked1sigma"
+filename = "../../MikeData/XC"
+XC = np.loadtxt(filename+".txt");
+
+gs = GridSampler(XC,N_goal=2000);
+cls_dist = gs.sampleGrid(algo='FINDER');

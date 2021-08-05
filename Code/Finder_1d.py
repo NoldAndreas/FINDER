@@ -5,6 +5,7 @@ from sklearn.cluster import DBSCAN
 from DbscanLoop import DbscanLoop
 from sklearn.neighbors import NearestNeighbors
 from ProgressBar import printProgressBar
+from AuxiliaryFunctions import GetLineOfOptima,GetClusterDistribution
 
 #**************************************************
 # FINDER
@@ -34,6 +35,7 @@ class Finder_1d:
         self.algo                = algo;
         self.one_two_d           = "twoD";
         self.minmax_threshold    = [3,30];
+        self.relative_acceptable_change_of_clusters_inFirst_bin = 0.1;
 
     #**************************************************
     # fit
@@ -73,11 +75,13 @@ class Finder_1d:
 
 
         #Step 3: Get parameterset
-        labels,selected_parameters = self.__get_consensus_clustering(data,XC);
+        #labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
+        labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
 
         print("Comp time Step 1 (set boundaries): "+str(np.round(t_2-t_1,2))+" seconds");
         print("Comp time Step 2 (clustering): "+str(np.round(t_3-t_2,2))+" seconds");
         print("Comp time Step 3 (postprocess, similarity scores): "+str(np.round(t_4-t_3,2))+" seconds");
+        print("Selected parameters: "+str(selected_parameters));
 
         #Save data
         self.computationTimes    = {'Step1':t_2-t_1,'Step2':t_3-t_2,'Step3':t_4-t_3};
@@ -342,7 +346,44 @@ class Finder_1d:
 
         print("Selected threshold , sigma : "+str(threshold_selected)+" , " + str(sigma_selected));
         return labels,selected_parameters;
-
+    
+    #**************************************************
+    # __findRelevantClusters
+    #**************************************************
+    def __get_consensus_clustering2(self,PS,XC):    
+        
+        #Step 1: Get optimal sigma for each theta
+        df_opt_th = GetLineOfOptima(PS,'threshold','similarityScore');
+        
+        #Step 2: Get number of clusters in first bin 
+        noClusters_threshold = [];
+        for index, row in df_opt_th.iterrows():
+            labels       = PS.loc[int(row['idx']),'labels'];
+            cldist       = GetClusterDistribution(labels);
+            
+            #get how many clusters there are with number of localizations equal threshold:
+            noClusters_threshold.append(np.sum(cldist==row['threshold']));
+            
+        noClusters_threshold              = np.asarray(noClusters_threshold);
+        df_opt_th['noClusters_threshold'] = noClusters_threshold;
+        
+        #Step 3: Get theta for which number of clusters in first bin decayed enough
+        
+        delta_noClusters_threshold = np.abs(noClusters_threshold[1:]-noClusters_threshold[:-1])/noClusters_threshold[0];
+                
+        idx_chosen = len(delta_noClusters_threshold);
+        for index,d in enumerate(delta_noClusters_threshold):  
+            if(d < self.relative_acceptable_change_of_clusters_inFirst_bin):
+                idx_chosen = index+1; #+1 because we evaluated the difference, so n-1 values, and we take the higher value
+                break;
+        
+        d_sel               = PS.loc[df_opt_th.loc[idx_chosen,'idx'],:];
+        labels              = d_sel['labels'];
+        selected_parameters = {"sigma":d_sel['sigma'],
+                               "threshold":d_sel['threshold']};
+        
+        return labels,selected_parameters;
+            
     #**************************************************
     # __getSimilarityScore
     #**************************************************

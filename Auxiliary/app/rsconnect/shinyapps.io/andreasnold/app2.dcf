@@ -1,0 +1,11 @@
+name: app2
+title:
+username:
+account: andreasnold
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4247920
+bundleId: 4696312
+url: https://andreasnold.shinyapps.io/app2/
+when: 1623239332.31963
+lastSyncTime: 1623239332.31964
