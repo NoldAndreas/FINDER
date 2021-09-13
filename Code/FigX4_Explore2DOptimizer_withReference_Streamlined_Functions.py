@@ -45,7 +45,8 @@ def LoadPoints(filename,datascale=1):
         
     return XC;
 
-def FilterPoints(XC,xmin,xmax,ymin,ymax):
+def FilterPoints(XC,xyminmax):
+    xmin,xmax,ymin,ymax = xyminmax[0],xyminmax[1],xyminmax[2],xyminmax[3];
     mask = (XC[:,0]>xmin)*(XC[:,0]<xmax)*(XC[:,1]>ymin)*(XC[:,1]<ymax);
     return XC[mask,:];
 
@@ -102,79 +103,71 @@ def GetLineOfOptimaUnique(df,x_selector,y_selector,no_bins=0):
 
 
 def GetClusterDistribution(labels):
-    cl_sizes = [];
-    for c in np.unique(labels):
-        if(c == -1):
-            continue;
-        cl_sizes.append(np.sum(labels==c));
-    return cl_sizes;
+    label_vs_cl_size = np.array([[l,np.sum(labels==l)] for l in np.unique(labels) if (l>=0)]);
+    
+#    cl_sizes = [];
+#    for c in np.unique(labels):
+#        if(c == -1):
+#            continue;
+#        cl_sizes.append(np.sum(labels==c));
+    return label_vs_cl_size;
 
 
 def GetClusterSizesAlongOptima(FD,df_opt_th):
 
     cl_dist    = [];
-    idxs       = [];
+   # idxs       = [];
     thresholds = [];
+    labels     = [];
 
     for index, row in df_opt_th.iterrows():
         df1_row     = FD.phasespace.loc[int(row['idx']),:];
         cld         = GetClusterDistribution(df1_row['labels']);
-        cl_dist    += (list(cld));
-        idxs       += list((int(row['idx']))*np.ones_like(cld));
-        thresholds += list(df1_row['threshold']*np.ones_like(cld));
+        cl_dist    += (list(cld[:,1]));
+        labels     += (list(cld[:,0]));
+    #    idxs       += list((int(row['idx']))*np.ones_like(cld[:,0]));
+        thresholds += list(df1_row['threshold']*np.ones_like(cld[:,0]));
 
     df_clusterSizes = pd.DataFrame();
+    df_clusterSizes['labels']      = labels;
     df_clusterSizes['clusterSize'] = cl_dist;
     df_clusterSizes['threshold']   = thresholds;
     
     return df_clusterSizes;
 
 def AssembleStatistics(df_clusterSizes_):
+    #data.groupby('month', as_index=False).agg({"duration": "sum"})
+    rows_list = [];
+    for t in np.unique(df_clusterSizes_['threshold']):
 
-    th_ = [];
-    cv_ = [];
-    fano_ = [];
-    kur_ = [];
-    skew_ = [];
-    max_cl = [];
-    m_ = [];
-    med_ = [];
-    v1_ = [];
-    
-    fig,axs = plt.subplots(1,1,figsize=(3,3));    
-    for t in np.unique(df_clusterSizes_['threshold']):#df_clusterSizes.iterrows():
         d_ = df_clusterSizes_.loc[df_clusterSizes_['threshold']==t,'clusterSize'];
-        cv_.append(stats.variation(d_));
-        m_.append(np.mean(d_));
-        med_.append(np.median(d_));    
-        th_.append(t);
-        fano_.append(np.var(d_)/np.mean(d_));
-        kur_.append(stats.kurtosis(d_));                            
-        skew_.append(stats.skew(d_));    
+        
+        dict1 = {}
+        # get input row in dictionary format
+        # key = col_name
+        dict1['n']          = len(d_);
+        dict1['mean']       = np.mean(d_);
+        dict1['median']     = np.median(d_);
+        dict1['quantile_90']    = np.quantile(d_,0.9);        
+        dict1['quantile_10']    = np.quantile(d_,0.1);                
+        dict1['cv']         = stats.variation(d_);
+        dict1['threshold']  = t;
+        dict1['fano']       = np.var(d_)/np.mean(d_);
+        dict1['skewness']   = stats.skew(d_);
+        dict1['kurtosis']   = stats.kurtosis(d_);
 
-
-        z_ = plt.hist(d_,bins=np.linspace(0,40,41)+0.5);
-        idx_max = np.argmax(z_[0]);    
-        max_cl.append(z_[1][idx_max]+0.5);
-
+#        z_ = plt.hist(d_,bins=np.linspace(0,40,41)+0.5);
+#        idx_max = np.argmax(z_[0]);    
+#        max_cl.append(z_[1][idx_max]+0.5);
+        #dict1['max_cl']   = max_cl;
+        
         dv_ = d_.value_counts().sort_index();    
         v1  = np.sum(dv_[(dv_.index < t+1)]);#/np.sum(dv_[(dv_.index < t+3)]);
-    #    v1 = np.sum(dv_[(dv_.index < t+2)])/np.sum(dv_[(dv_.index >= t+2)*(dv_.index < t+4)]);    
-        v1_.append(v1);
+        dict1['firstBin']   = v1;
 
+        rows_list.append(dict1)
 
-    #    v1.append(np.sum(dv_[(dv_.index < th+1)])/np.sum(dv_[(dv_.index < th+3)]));
-    
-    df_stats_per_th = pd.DataFrame();
-    df_stats_per_th['mean'] = m_;
-    df_stats_per_th['median'] = med_;
-    df_stats_per_th['cv'] = cv_;
-    df_stats_per_th['threshold']   = th_;
-    df_stats_per_th['fano']   = fano_;
-    df_stats_per_th['skewness']   = skew_;
-    df_stats_per_th['kurtosis']   = kur_;
-    df_stats_per_th['max_cl']   = max_cl;
-    df_stats_per_th['firstBin']   = v1_;
+    df_stats_per_th = pd.DataFrame(rows_list)               
     
     return df_stats_per_th;
 

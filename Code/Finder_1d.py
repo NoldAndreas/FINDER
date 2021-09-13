@@ -63,24 +63,31 @@ class Finder_1d:
         phasespace    = self.__phaseSpace(XC,params);
         self.phasespace          = phasespace;
         t_3 = time.time();
-
-        if(("skipSimilarityScore" in kwargs.keys()) and (kwargs['skipSimilarityScore']==True)):
-            self.computationTimes    = {'Step1':t_2-t_1,'Step2':t_3-t_2};
-            print("Skipping similarity score and computation of optimum")
-            return False;
-
+        
         #Step 3: Compute similarity score
-        data          = self.__phaseSpacePostProcess(XC,phasespace);
+        if(("skipSimilarityScore" in kwargs.keys()) and (kwargs['skipSimilarityScore']==True)):            
+            data          = self.__phaseSpacePostProcess(XC,phasespace,skipSimilarityScore=True);
+                        
+            selth               = self.phasespace.loc[np.argmin(np.abs(self.phasespace['threshold']-self.threshold)),'threshold'];
+            mark                = (self.phasespace['threshold']==selth);
+            selected_parameters = self.phasespace.loc[self.phasespace.loc[mark,'no_clusters'].idxmax()];
+            labels              = selected_parameters['labels'];
+            
+        else:
+            data          = self.__phaseSpacePostProcess(XC,phasespace);
+
+            #Step 3: Get parameterset
+            labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
+
         t_4 = time.time();
 
 
-        #Step 3: Get parameterset
         #labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
-        labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
+            
 
         print("Comp time Step 1 (set boundaries): "+str(np.round(t_2-t_1,2))+" seconds");
         print("Comp time Step 2 (clustering): "+str(np.round(t_3-t_2,2))+" seconds");
-        print("Comp time Step 3 (postprocess, similarity scores): "+str(np.round(t_4-t_3,2))+" seconds");
+        print("Comp time Step 3 (postprocessing): "+str(np.round(t_4-t_3,2))+" seconds");
         print("Selected parameters: "+str(selected_parameters));
 
         #Save data
@@ -273,7 +280,7 @@ class Finder_1d:
     # __phaseSpacePostProcess
     #  -- Computes similarity scores
     #**************************************************
-    def __phaseSpacePostProcess(self,XC,PS):
+    def __phaseSpacePostProcess(self,XC,PS,skipSimilarityScore=False):
 
         print("Postprocessing..")
 
@@ -294,27 +301,34 @@ class Finder_1d:
         # Compute similarity scores
         #***************************
         ###
-        t1 = time.time();
-        printProgressBar(0, len(PS), prefix = 'Postprocessing progress:', suffix = 'Complete', length = 50);
-        for i, ps in PS.iterrows():
-            for j in np.arange(i+1):
-                if(not (i==j)):
-                    score = self.__getSimilarityScore(i,j,PS,centers,radii);
-                    similarityScoreMatrix[j,i] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
-                    similarityScoreMatrix[i,j] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
-                else:
-                    similarityScoreMatrix[i,j] = np.max(ps["labels"]) + 1;
-            printProgressBar(i + 1, len(PS), prefix = 'Progress:', suffix = 'Complete', length = 50)
-        print("Computing similarity scores: "+str(np.round(time.time()-t1,2))+" seconds");
+        if(skipSimilarityScore==True):
+            for i, ps in PS.iterrows():
+                no_clusters[i]         = np.int(np.max(ps["labels"]) + 1);
+                similarityScore[i]     = np.nan;
+                times[i]               = ps["time"];
+        else:
 
-        #***************************
-        # Collect data
-        #***************************
+            t1 = time.time();
+            printProgressBar(0, len(PS), prefix = 'Postprocessing progress:', suffix = 'Complete', length = 50);
+            for i, ps in PS.iterrows():
+                for j in np.arange(i+1):
+                    if(not (i==j)):
+                        score = self.__getSimilarityScore(i,j,PS,centers,radii);
+                        similarityScoreMatrix[j,i] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
+                        similarityScoreMatrix[i,j] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
+                    else:
+                        similarityScoreMatrix[i,j] = np.max(ps["labels"]) + 1;
+                printProgressBar(i + 1, len(PS), prefix = 'Progress:', suffix = 'Complete', length = 50)
+            print("Computing similarity scores: "+str(np.round(time.time()-t1,2))+" seconds");
 
-        for i, ps in PS.iterrows():
-            no_clusters[i]         = np.int(np.max(ps["labels"]) + 1);
-            similarityScore[i]     = np.sum(similarityScoreMatrix[i,:]);
-            times[i]               = ps["time"];
+            #***************************
+            # Collect data
+            #***************************
+
+            for i, ps in PS.iterrows():
+                no_clusters[i]         = np.int(np.max(ps["labels"]) + 1);
+                similarityScore[i]     = np.sum(similarityScoreMatrix[i,:]);
+                times[i]               = ps["time"];
 
         PS["no_clusters"]     = no_clusters;
         PS["time"]            = times;
