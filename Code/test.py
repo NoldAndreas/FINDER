@@ -16,9 +16,12 @@ from GridSampler import GridSampler
 import scipy.stats
 
 
-#filename = "../../MikeData/EGFR-P1-ATTO655_cell_2_MMImages.ome_locs_render_al_linked1sigma"
-filename = "../../MikeData/XC"
-XC = np.loadtxt(filename+".txt");
+filename = "../../ProteinData_ttx_1hr_2/Analysis_dataWindow_3/dataWindow_3_filtered_signal.txt"
 
-gs = GridSampler(XC,N_goal=2000);
-cls_dist = gs.sampleGrid(algo='FINDER');
+XC = np.loadtxt(filename);
+
+#gs = GridSampler(XC,N_goal=2000);
+#cls_dist = gs.sampleGrid(algo='FINDER');
+
+FD = Finder_1d();
+FD.fit(XC[:2000]);

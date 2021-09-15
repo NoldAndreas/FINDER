@@ -112,6 +112,31 @@ def GetClusterDistribution(labels):
 #        cl_sizes.append(np.sum(labels==c));
     return label_vs_cl_size;
 
+def GetClusterSizesAll(FD):
+
+    cl_dist    = [];
+    thresholds = [];
+    sigmas     = [];    
+    labels     = [];
+
+    for index, df1_row in FD.phasespace.iterrows():
+        #df1_row     = FD.phasespace.loc[int(row['idx']),:];        
+        cld         = GetClusterDistribution(df1_row['labels']);  
+#        print(cld.shape)
+        if(cld.shape[0] == 0):
+            continue;
+        cl_dist    += (list(cld[:,1]));
+        labels     += (list(cld[:,0]));
+        thresholds += list(df1_row['threshold']*np.ones_like(cld[:,0]));
+        sigmas     += list(df1_row['sigma']*np.ones_like(cld[:,0]));
+
+    df_clusterSizes = pd.DataFrame();
+    df_clusterSizes['labels']      = labels;
+    df_clusterSizes['clusterSize'] = cl_dist;
+    df_clusterSizes['threshold']   = thresholds;
+    df_clusterSizes['sigma']       = sigmas;  
+    
+    return df_clusterSizes;
 
 def GetClusterSizesAlongOptima(FD,df_opt_th):
 

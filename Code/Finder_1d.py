@@ -252,7 +252,7 @@ class Finder_1d:
             printProgressBar(index + 1, len(params), prefix = 'Progress:', suffix = 'Complete', length = 50)
             #print("Computing time for sigma = "+str(np.round(param['sigma'],2))+" and minPts ="+ str(param['threshold'])+" : " + str(np.round(t2-t1,2)) );            
 
-        print("Computing clusters : " + str(np.round(time.time()-t1_all,2)) );            
+        print("Computing clusters : " + str(np.round(time.time()-t1_all,2))+" seconds" );            
         ps = params;
         ps['labels'] = labels_all;
         ps['time']   = times;
@@ -291,6 +291,13 @@ class Finder_1d:
         times                    = np.zeros(shape=(n,))
         similarityScore          = np.zeros(shape=(n,))
         similarityScoreMatrix    = np.zeros(shape=(n,n))
+       
+        #***********************************************
+        # Preprocess: Inititialize Cluster information
+        #***********************************************
+        clusterInfo = self.__getClusterSizesAll();
+        cli_index = clusterInfo['index'];
+        cli_similarityScore = np.zeros([len(cli_index),],dtype=int);
 
         #***************************************
         # Preprocess: get centers and radii
@@ -301,6 +308,7 @@ class Finder_1d:
         # Compute similarity scores
         #***************************
         ###
+
         if(skipSimilarityScore==True):
             for i, ps in PS.iterrows():
                 no_clusters[i]         = np.int(np.max(ps["labels"]) + 1);
@@ -311,9 +319,22 @@ class Finder_1d:
             t1 = time.time();
             printProgressBar(0, len(PS), prefix = 'Postprocessing progress:', suffix = 'Complete', length = 50);
             for i, ps in PS.iterrows():
-                for j in np.arange(i+1):
+                mark_i = (cli_index == i);
+
+                for j in np.arange(i+1):                  
+                    mark_j = (cli_index == j);
+                    
                     if(not (i==j)):
-                        score = self.__getSimilarityScore(i,j,PS,centers,radii);
+                        s_ij = self.__getSimilarityScore(i,j,PS,centers,radii);
+                        
+                        if((type(s_ij)==bool) and (s_ij==False)):
+                            continue;
+
+                        score = np.sum(s_ij[0]);
+
+                        cli_similarityScore[mark_i] += s_ij[0];
+                        cli_similarityScore[mark_j] += s_ij[1];
+                            
                         similarityScoreMatrix[j,i] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
                         similarityScoreMatrix[i,j] = score; #/Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
                     else:
@@ -330,10 +351,13 @@ class Finder_1d:
                 similarityScore[i]     = np.sum(similarityScoreMatrix[i,:]);
                 times[i]               = ps["time"];
 
+        clusterInfo['similarityScore'] = cli_similarityScore;
+
         PS["no_clusters"]     = no_clusters;
         PS["time"]            = times;
         PS["similarityScore"] = similarityScore;
         
+        self.clusterInfo = clusterInfo;
         self.similarityScoreMatrix = similarityScoreMatrix;
 
         return PS
@@ -436,24 +460,23 @@ class Finder_1d:
         radii_2   = radii[j];
         centers_1 = centers[i];
         centers_2 = centers[j];
-        count     = 0;
 
         #return zero score if no clusters selected or
         # if one cluster is selcted which covers most points
         if((np.max(labels_1) == -1) or (np.max(labels_2) == -1)):
-            return count;
+            return False;
         elif((np.max(labels_1) == 0) and (np.sum(labels_1 == 0)/len(labels_1) > 0.5 )):
-            return count;
+            return False;
         elif((np.max(labels_2) == 0) and (np.sum(labels_2 == 0)/len(labels_2) > 0.5 )):
-            return count;
+            return False;
 
         #******************************
         n1                  = np.max(labels_1)+1;
         n2                  = np.max(labels_2)+1;
-        similarityMatrix    = np.zeros((n1,n2));
-        similarityMatrix[:] = np.nan;
+        similarityMatrix    = np.zeros((n1,n2),dtype=int);
+        similarityMatrix[:] = -1;
         #******************************
-
+       
         for i1 in np.arange(n1):
             for i2 in np.arange(n2):
 
@@ -476,7 +499,11 @@ class Finder_1d:
                 else:
                     similarityMatrix[i1,i2] = 0;
 
-        return np.sum(similarityMatrix);
+        similarityMatrix[similarityMatrix==-1] = 0;
+
+        s_i = np.sum(similarityMatrix,axis=1);
+        s_j = np.sum(similarityMatrix,axis=0)
+        return [s_i,s_j];
 
 
     def __getSimilarityClusters_withPrecheck(self,labels_1,labels_2,i1,i2,centers_1,centers_2,radii_1,radii_2):
@@ -497,3 +524,37 @@ class Finder_1d:
             return True;
         else:
             return False;
+        
+    def __getClusterSizesAll(self):
+
+        cl_sizes   = np.array([],dtype=int);
+        thresholds = np.array([],dtype=int)
+        sigmas     = np.array([]);
+        labels     = np.array([],dtype=int);
+        index      = np.array([],dtype=int);        
+    
+        for idx, df1_row in self.phasespace.iterrows():        
+            
+            labels_i = df1_row['labels'];
+            l_ = (np.unique(labels_i));
+            l_ = l_[l_>=0]
+            
+            if(l_.shape[0] == 0):
+                continue;
+
+            labels     = np.concatenate((labels,l_));        
+            cl_sizes   = np.concatenate((cl_sizes,np.asarray([np.sum(labels_i==l) for l in l_])))            
+            thresholds = np.concatenate((thresholds,df1_row['threshold']*np.ones_like(l_)));
+            sigmas     = np.concatenate((sigmas,df1_row['sigma']*np.ones([len(l_),])));
+            index      = np.concatenate((index,idx*np.ones_like(l_)));
+    
+        df_clusterSizes = pd.DataFrame();
+        df_clusterSizes['labels']      = labels;
+        df_clusterSizes['clusterSize'] = cl_sizes;
+        df_clusterSizes['threshold']   = thresholds;
+        df_clusterSizes['sigma']       = sigmas;  
+        df_clusterSizes['index']       = index;          
+        
+        return df_clusterSizes;
+
+
