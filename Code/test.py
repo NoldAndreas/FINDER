@@ -7,4 +7,6 @@ basefolder = '/Users/andreas/Documents/NoiseRecognizer_WorkingVersion/';
 parameterfile = 'MikeData/Analysis_dataWindow_1/dataWindow_1_parameters';
 
 CB = ClusterBasing(basefolder,parameterfile);
-CB.GetClusterings();
+CB.GetClusterings_InOutCell();
+CB.GetReferenceClustering();
+CB.GetClustering();

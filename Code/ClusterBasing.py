@@ -5,10 +5,11 @@ import pickle
 
 from Finder_1d import Finder_1d
 
-from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import GetDensity
-from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import GetOverlay
-from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import LoadPoints
-from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import FilterPoints
+from SimilarityScore import getSimilarityScore,getClusterSizesAll,getSimilarityScore_ij
+
+from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import GetDensity,GetOverlay
+from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import LoadPoints,FilterPoints
+from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import DefineCleanedLabels_GeneralLimit,GetLineOfOptima
 
 class ClusterBasing:
 
@@ -53,11 +54,13 @@ class ClusterBasing:
         self.XC_incell = XC_incell;
         self.XC_outcell = XC_outcell;
 
-    def GetClusterings(self):
+    def GetClusterings_InOutCell(self):
 
         parameters = self.parameters;
         filename   = self.basefolder+parameters['outputfolder']+"results_"+parameters['analysis_name'];
 
+        #******************************************************************************************
+        # Load or Compute Clustering within cell
         #******************************************************************************************
         if(os.path.exists(filename+'_incell.pickle')):
             with open(filename+'_incell.pickle', 'rb') as fr:
@@ -74,6 +77,8 @@ class ClusterBasing:
             print("Computed and saved Clustering results in "+filename+'_incell.pickle');
 
         #******************************************************************************************
+        # Load or Compute Clustering outside cell
+        #******************************************************************************************
         if(os.path.exists(filename+'_outcell.pickle')):
             with open(filename+'_outcell.pickle', 'rb') as fr:
                 FD_load = pickle.load(fr);
@@ -88,10 +93,57 @@ class ClusterBasing:
                 pickle.dump({'FD':FD_ref}, handle,protocol=pickle.HIGHEST_PROTOCOL)
             print("Computed and saved Clustering results in "+filename+'_outcell.pickle');
 
-        return False;
+        #******************************************************************************************
+        # Assemble data
+        #******************************************************************************************
+        phasespace_all                    = FD.phasespace;
+        phasespace_all['labels_ref']      = FD_ref.phasespace['labels']
+        phasespace_all['no_clusters_ref'] = FD_ref.phasespace['no_clusters'];
+        phasespace_all['time_ref']        = FD_ref.phasespace['time'];
+        self.phasespace_all               = phasespace_all;
 
-    def GetReferenceClustering(self):
-        return False;
+        df_clusterSizes     = FD.clusterInfo;#GetClusterSizesAll(FD);
+        df_clusterSizes_ref = FD_ref.clusterInfo;#'GetClusterSizesAll(FD_ref);
 
-    def PostProcess(self):
-        return False;
+        df_clusterSizes['type']     = 'incell';
+        df_clusterSizes_ref['type'] = 'outcell';
+        self.df_clusterSizes_all         = df_clusterSizes.append(df_clusterSizes_ref, ignore_index=True);
+
+    def GetReferenceClustering(self,bestRequiredRate=1.0):
+
+        #*********************************************
+        # Get limit and filter by cluster size
+        #*********************************************
+        phasespace_all_aboveT = DefineCleanedLabels_GeneralLimit(self.df_clusterSizes_all,self.phasespace_all,criterion='clusterSize',bestRequiredRate=bestRequiredRate);
+        clusterInfo_aboveT    = getClusterSizesAll(self.XC_incell,phasespace_all_aboveT);
+
+        cli_similarityScore,similarityScore      = getSimilarityScore(self.XC_incell,phasespace_all_aboveT,clusterInfo_aboveT);
+
+        phasespace_all_aboveT['similarityScore'] = similarityScore;
+        clusterInfo_aboveT['similarityScore']    = cli_similarityScore;
+
+
+        self.phasespace_all_aboveT = phasespace_all_aboveT;
+        self.clusterInfo_aboveT    = clusterInfo_aboveT;
+        self.df_opt_th_aboveT_ncl = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','similarityScore','no_clusters']],'threshold','no_clusters');
+
+    def GetClustering(self,criterion='percent_locsIncluded'): #'no_clusters'
+
+        df_opt_th_aboveT_ncl = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','similarityScore','no_clusters','percent_locsIncluded']],'threshold','no_clusters');
+        i_choose             = df_opt_th_aboveT_ncl.loc[df_opt_th_aboveT_ncl[criterion].argmax(),'idx'];
+        #i_choose = np.argmax(self.phasespace_all_aboveT[criterion]);
+        #i_check = 56;
+        v = [];
+        for i in np.arange(len(self.phasespace_all_aboveT)):
+            s1= getSimilarityScore_ij(i_choose,i,self.phasespace_all_aboveT,self.clusterInfo_aboveT);
+        #    print(s1)
+
+            if(type(s1)!= bool):
+                v.append(np.sum(s1[0]));
+            else:
+                v.append(0);
+         #       print(np.sum(s1[0]),np.sum(s1[1]));
+        self.phasespace_all_aboveT['similarityScoreChosen'] = v;
+        print(self.phasespace_all_aboveT.loc[i_choose,:]);
+
+        return self.phasespace_all_aboveT.loc[i_choose,'labels'];
