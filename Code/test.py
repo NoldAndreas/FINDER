@@ -1,27 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 27 15:11:46 2021
+from ClusterBasing import ClusterBasing
 
-@author: andreas
-"""
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
-import time
-import seaborn as sns
-import sys
-from Finder_1d import Finder_1d
-from GridSampler import GridSampler
-import scipy.stats
+basefolder = '/Users/andreas/Documents/NoiseRecognizer_WorkingVersion/';
 
+#    parameterfile = 'ProteinData_ttx_1hr_2/Analysis_dataWindow_3/dataWindow_3_parameters';
+#    parameterfile = 'ProteinData_ttx_1hr_2/Analysis_dataWindow_7/dataWindow_7_parameters';
+parameterfile = 'MikeData/Analysis_dataWindow_1/dataWindow_1_parameters';
 
-filename = "../../ProteinData_ttx_1hr_2/Analysis_dataWindow_3/dataWindow_3_filtered_signal.txt"
-
-XC = np.loadtxt(filename);
-
-#gs = GridSampler(XC,N_goal=2000);
-#cls_dist = gs.sampleGrid(algo='FINDER');
-
-FD = Finder_1d();
-FD.fit(XC[:2000]);
+CB = ClusterBasing(basefolder,parameterfile);
+CB.GetClusterings();

@@ -14,6 +14,44 @@ import seaborn as sns
 import pandas as pd
 import scipy.stats as stats
 
+def GetDensity(XC):
+    x_minmax = (np.max(XC,axis=0))-np.min(XC,axis=0);
+    area     = x_minmax[0]*x_minmax[1];
+    return len(XC)/area; 
+
+def GetOverlay(XC_incell,XC_outcell):
+    
+    if(('overlay_outcell' in parameters.keys()) and (parameters['overlay_outcell']==1)):
+        density_ration_inoutcell = GetDensity(XC_incell)/GetDensity(XC_outcell);
+
+        n_x = int(np.round(np.sqrt(density_ration_inoutcell)));
+        n_y = int(np.round(density_ration_inoutcell/n_x));
+        print('Deviding in '+str(n_x)+' x '+str(n_y))
+
+        XC_outcell_overlay = np.zeros([0,2])
+        xis = np.linspace(np.min(XC_outcell[:,0]),np.max(XC_outcell[:,0]),n_x+1);
+        yis = np.linspace(np.min(XC_outcell[:,1]),np.max(XC_outcell[:,1]),n_y+1);
+        for i,xl in enumerate(xis[:-1]):
+            xr   = xis[i+1];
+
+            for i,yl in enumerate(yis[:-1]):        
+                yr   = yis[i+1];
+                mark = (XC_outcell[:,0]>=xl)&(XC_outcell[:,0]<=xr);    
+                mark = mark&(XC_outcell[:,1]>=yl)&(XC_outcell[:,1]<=yr);
+                XC_paste = XC_outcell[mark,:]-[xl,yl];
+                if(np.random.rand()>0.5):
+                    XC_paste = XC_paste[:,[1,0]];
+                XC_outcell_overlay = np.concatenate((XC_outcell_overlay,XC_paste))
+               # break;
+        #    break;
+        #    for y_i np.linspace(np.min(XC_outcell[:,0]),np.max(XC_outcell[:,0]),5):
+#        XC_outcell = XC_outcell_overlay;
+        print('Ratio of localization densities: '+str(GetDensity(XC_incell)/GetDensity(XC_outcell)));
+    else:
+        XC_outcell_overlay = XC_outcell;
+        print('No overlay for outcell');
+    return XC_outcell_overlay;
+
 def PlotScatter(XC_,labels=[],ax=[]):
 
     if(len(labels)==0):
