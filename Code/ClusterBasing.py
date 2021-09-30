@@ -18,6 +18,9 @@ class ClusterBasing:
         #Load Parameter file
         parameters= {'algo':algo};
 
+        if not basefolder.endswith(os.path.sep):
+            basefolder += os.path.sep
+
         with open(basefolder+'parameters_clusterBasing.json', 'w') as fp:
             json.dump(parameters,fp,indent=4);
 
@@ -65,7 +68,7 @@ class ClusterBasing:
             print("Loaded Clustering results from "+filename+'_outcell.pickle');
         else:
             FD_ref      = Finder_1d(algo=parameters['algo']);
-            labels_ref  = FD_ref.fit(self.XC_outcell,skipSimilarityScore=True);
+            labels_ref  = FD_ref.fit(self.XC_outcell,self.XC_incell,skipSimilarityScore=True);
 
             with open(filename+'_outcell.pickle','wb') as handle:
                 pickle.dump({'FD':FD_ref}, handle,protocol=pickle.HIGHEST_PROTOCOL)

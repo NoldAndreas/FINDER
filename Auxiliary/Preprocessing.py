@@ -20,7 +20,8 @@ from ClusterBasing import ClusterBasing
 #filename      = sys.argv[1];
 #outputfolder  = sys.argv[2];
 
-basefolder    = "../../ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20/";
+#basefolder    = "../../AnalysisDataOrganized/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20/";
+basefolder    = "../../AnalysisDataOrganized/Mike_190516_EGFR-P1-ATTO655_cell_2_MMImages.ome_locs_render_al_linked1sigma/";
 outputfolder  = basefolder+"Output/"
 
 if(not (os.path.exists(outputfolder))):
@@ -92,7 +93,8 @@ def SelectPoints(XC,N_select):
     xymin,xymax = np.min(XC,axis=0),np.max(XC,axis=0);
 
     #Choose random point in area:
-    xy_center = xymin + np.random.rand(2)*(xymax-xymin);
+    xy_center = XC[np.random.randint(len(XC)),:]
+    #xy_center = xymin + np.random.rand(2)*(xymax-xymin);
     print('Center = '+str(xy_center));
     rs = np.linalg.norm(XC-xy_center,axis=1)
     r  = np.sort(rs)[N_select];
