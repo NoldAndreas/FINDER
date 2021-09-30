@@ -13,29 +13,51 @@ from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import DefineC
 
 class ClusterBasing:
 
-    def __init__(self,basefolder,algo='DbscanLoop'):
+    def __init__(self,basefolder,parameterfile='parameters'):
 
         #Load Parameter file
-        parameters= {'algo':algo};
+        #parameterfile = 'MikeData/Analysis_dataWindow_1/dataWindow_1_parameters';
+        with open(basefolder+parameterfile+'.json') as f:
+            parameters = json.load(f);
 
-        with open(basefolder+'parameters_clusterBasing.json', 'w') as fp:
-            json.dump(parameters,fp,indent=4);
+        if(not ('datascale' in parameters.keys())):
+            parameters['datascale'] = 1;
 
-        if(os.path.isfile(basefolder+"X_incell_window.txt") and \
-            os.path.isfile(basefolder+"X_outcell_window.txt")):
-            self.XC_incell  = LoadPoints(basefolder+"X_incell_window.txt");
-            self.XC_outcell = LoadPoints(basefolder+"X_outcell_window.txt");
-        else:
-            print("X_incell_window or X_outcell_window in folder "+basefolder+" not found!");
+        parameters['outputfolder']   = parameters['mainfolder'] + 'Analysis_'+parameters['analysis_name']+'/';
+        parameters['save_name']      = parameters['outputfolder']+parameters['analysis_name'];
+        parameterfile                = basefolder+parameters['save_name']+'_parameters.json';
 
         self.basefolder              = basefolder;
         self.parameters              = parameters;
-        self.save_name               = basefolder + 'analysis';
+        self.save_name               = basefolder + parameters['save_name'];
+
+        #Load Points
+        self.__loadPoints(basefolder,parameters);
+
+    def __loadPoints(self,basefolder,parameters):
+
+        if(os.path.isfile(basefolder+parameters['save_name']+"_filtered_incell.txt")):
+            XC_incell  = LoadPoints(basefolder+parameters['save_name']+"_filtered_incell.txt",datascale=parameters['datascale']);
+            XC_outcell = LoadPoints(basefolder+parameters['save_name']+"_filtered_outcell.txt",datascale=parameters['datascale']);
+        else:
+            XC_incell  = LoadPoints(basefolder+parameters['mainfolder']+parameters['image_filename']+'_incell.txt',datascale=parameters['datascale']);
+            XC_outcell = LoadPoints(basefolder+parameters['mainfolder']+parameters['image_filename']+'_outcell.txt',datascale=parameters['datascale']);
+
+            XC_incell   = FilterPoints(XC_incell,parameters['incell_window']);
+            XC_outcell  = FilterPoints(XC_outcell,parameters['outcell_window']);
+
+            XC_outcell_overlay = GetOverlay(XC_incell,XC_outcell);
+
+            np.savetxt(basefolder+parameters['save_name']+"_filtered_incell.txt",XC_incell,fmt="%f\t%f");
+            np.savetxt(basefolder+parameters['save_name']+"_filtered_outcell.txt",XC_outcell,fmt="%f\t%f");
+
+        self.XC_incell = XC_incell;
+        self.XC_outcell = XC_outcell;
 
     def GetClusterings_InOutCell(self):
 
         parameters = self.parameters;
-        filename   = self.save_name+"clustering";
+        filename   = self.basefolder+parameters['outputfolder']+"results_"+parameters['analysis_name'];
 
         #******************************************************************************************
         # Load or Compute Clustering within cell
@@ -48,7 +70,7 @@ class ClusterBasing:
             print("Loaded Clustering results from "+filename+'_incell.pickle');
         else:
             FD      = Finder_1d(algo=parameters['algo']);
-            labels  = FD.fit(self.XC_incell,skipSimilarityScore=True);
+            labels  = FD.fit(XC_incell);
 
             with open(filename+'_incell.pickle','wb') as handle:
                 pickle.dump({'FD':FD}, handle,protocol=pickle.HIGHEST_PROTOCOL)
@@ -60,12 +82,12 @@ class ClusterBasing:
         if(os.path.exists(filename+'_outcell.pickle')):
             with open(filename+'_outcell.pickle', 'rb') as fr:
                 FD_load = pickle.load(fr);
-            FD_ref  = FD_load['FD'];
+            FD_ref  = FD_load['FD_ref'];
 
             print("Loaded Clustering results from "+filename+'_outcell.pickle');
         else:
             FD_ref      = Finder_1d(algo=parameters['algo']);
-            labels_ref  = FD_ref.fit(self.XC_outcell,skipSimilarityScore=True);
+            labels_ref  = FD.fit(XC_incell);
 
             with open(filename+'_outcell.pickle','wb') as handle:
                 pickle.dump({'FD':FD_ref}, handle,protocol=pickle.HIGHEST_PROTOCOL)
@@ -87,7 +109,7 @@ class ClusterBasing:
         df_clusterSizes_ref['type'] = 'outcell';
         self.df_clusterSizes_all         = df_clusterSizes.append(df_clusterSizes_ref, ignore_index=True);
 
-    def GetReferenceClustering(self,bestRequiredRate=1.0,computeSimilarityScores=False):
+    def GetReferenceClustering(self,bestRequiredRate=1.0):
 
         #*********************************************
         # Get limit and filter by cluster size
@@ -95,19 +117,19 @@ class ClusterBasing:
         phasespace_all_aboveT = DefineCleanedLabels_GeneralLimit(self.df_clusterSizes_all,self.phasespace_all,criterion='clusterSize',bestRequiredRate=bestRequiredRate);
         clusterInfo_aboveT    = getClusterSizesAll(self.XC_incell,phasespace_all_aboveT);
 
-        if(computeSimilarityScores==True):
-            cli_similarityScore,similarityScore      = getSimilarityScore(self.XC_incell,phasespace_all_aboveT,clusterInfo_aboveT);
-            phasespace_all_aboveT['similarityScore'] = similarityScore;
-            clusterInfo_aboveT['similarityScore']    = cli_similarityScore;
+        cli_similarityScore,similarityScore      = getSimilarityScore(self.XC_incell,phasespace_all_aboveT,clusterInfo_aboveT);
+
+        phasespace_all_aboveT['similarityScore'] = similarityScore;
+        clusterInfo_aboveT['similarityScore']    = cli_similarityScore;
+
 
         self.phasespace_all_aboveT = phasespace_all_aboveT;
         self.clusterInfo_aboveT    = clusterInfo_aboveT;
-        self.df_opt_th_aboveT_ncl  = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','no_clusters']],'threshold','no_clusters');
-
+        self.df_opt_th_aboveT_ncl = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','similarityScore','no_clusters']],'threshold','no_clusters');
 
     def GetClustering(self,criterion='percent_locsIncluded'): #'no_clusters'
 
-        df_opt_th_aboveT_ncl = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','no_clusters','percent_locsIncluded']],'threshold','no_clusters');
+        df_opt_th_aboveT_ncl = GetLineOfOptima(self.phasespace_all_aboveT[['sigma', 'threshold','similarityScore','no_clusters','percent_locsIncluded']],'threshold','no_clusters');
         i_choose             = df_opt_th_aboveT_ncl.loc[df_opt_th_aboveT_ncl[criterion].argmax(),'idx'];
         #i_choose = np.argmax(self.phasespace_all_aboveT[criterion]);
         #i_check = 56;
@@ -124,4 +146,4 @@ class ClusterBasing:
         self.phasespace_all_aboveT['similarityScoreChosen'] = v;
         print(self.phasespace_all_aboveT.loc[i_choose,:]);
 
-        return self.phasespace_all_aboveT.loc[i_choose,:];
+        return self.phasespace_all_aboveT.loc[i_choose,'labels'];

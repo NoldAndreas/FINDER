@@ -55,8 +55,6 @@ def GetOptimalT(df_incell,df_outcell,criterion,min_noClustersToAnalyse=10,bestRe
     return T,incell_vs_outcell_probability_max,no_clusters_incell,no_clusters_outcell;
 
 def DefineCleanedLabels_GeneralLimit(df_clusterSizes_all,phasespace_all,criterion,bestRequiredRate):
-    #
-#    criterion = 'clusterSize';
 
     labels_incell = [];
     no_cl_incell  = [];
@@ -72,25 +70,32 @@ def DefineCleanedLabels_GeneralLimit(df_clusterSizes_all,phasespace_all,criterio
 
     T_,s_vs_n_,nocl_incell_,nocl_outcell_ = GetOptimalT(df_incell,df_outcell,criterion,bestRequiredRate=bestRequiredRate);
     print('T= '+str(T_));
-#    T_ = 190;
 
     for idx,row in phasespace_all.iterrows():
         th,si = row['threshold'],row['sigma'];
 
-        df_incell = df_clusterSizes_all[(df_clusterSizes_all['threshold']==th)&\
-                        (df_clusterSizes_all['sigma']==si)&\
+        df_incell = df_clusterSizes_all[(df_clusterSizes_all['index']==idx)&\
                         (df_clusterSizes_all['type']=='incell')];
-        df_outcell  = df_clusterSizes_all[(df_clusterSizes_all['threshold']==th)&\
-                        (df_clusterSizes_all['sigma']==si)&\
+        df_outcell  = df_clusterSizes_all[(df_clusterSizes_all['index']==idx)&\
                         (df_clusterSizes_all['type']=='outcell')];
+
+#        df_incell = df_clusterSizes_all[(df_clusterSizes_all['threshold']==th)&\
+#                        (df_clusterSizes_all['sigma']==si)&\
+#                        (df_clusterSizes_all['type']=='incell')];
+#        df_outcell  = df_clusterSizes_all[(df_clusterSizes_all['threshold']==th)&\
+#                        (df_clusterSizes_all['sigma']==si)&\
+#                        (df_clusterSizes_all['type']=='outcell')];
 
        # T_,s_vs_n_,nocl_incell_,nocl_outcell_ = GetOptimalT(df_incell,df_outcell,criterion);
         nocl_incell_  = float(np.sum(df_incell[criterion]>T_));
         nocl_outcell_ = float(np.sum(df_outcell[criterion]>T_));
         if(nocl_incell_ + nocl_outcell_>0):
-            p1 = (nocl_incell_/len(df_incell));
-            p2 = (nocl_outcell_/len(df_outcell));
-            s_vs_n_        = p1/(p1+p2);
+            if((len(df_incell) == 0) or (len(df_outcell) == 0)):
+                s_vs_n_ = np.nan;
+            else:
+                p1 = (nocl_incell_/len(df_incell));
+                p2 = (nocl_outcell_/len(df_outcell));
+                s_vs_n_        = p1/(p1+p2);
         else:
             s_vs_n_ = 0;
 
