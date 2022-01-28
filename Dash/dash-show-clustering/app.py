@@ -37,7 +37,10 @@ STATISTICS = [('median',np.median),\
             ('skewness',stats.skew),\
             ('kurtosis',stats.kurtosis),\
             ('fano',lambda d_ : np.var(d_)/np.mean(d_))]            
- 
+
+
+
+    
 
 app = dash.Dash(
     __name__,
@@ -162,14 +165,17 @@ app.layout = html.Div(
                         html.Div(
                             id="div-phasespace",
                             style={'width': '30%'},
-                            children=dcc.Graph(
-                                id="graph-phasespace",
-                                figure=dict(
-                                    layout=dict(
-                                        plot_bgcolor="#282b38", paper_bgcolor="#282b38"
-                                    )
+                            children= [
+                                dcc.Loading(
+                                    className="graph-wrapper",
+                                    children=dcc.Graph(id="graph-phasespace", figure=figs.make_default_figure()),
+                                    style={},
+                                ),                                
+                                dcc.Loading(
+                                    className="graph-wrapper2",
+                                    children=dcc.Graph(id="graph-along-optima", figure=figs.make_default_figure()),                                    
                                 ),
-                            ),
+                            ]    
                         ),                        
                         html.Div(
                             id="div-scatter",
@@ -241,7 +247,10 @@ def update_window_selection(dataset):
     return [{'value' : i, 'label' : i} for i in list_]    
 
 @app.callback(    
-    Output("div-phasespace", "children"),
+    [   
+        Output("graph-phasespace", "figure"),
+        Output("graph-along-optima", "figure")
+    ],
     [                
         Input("dropdown-select-dataset","value"),
         Input('dropdown-select-window', 'value'),
@@ -270,23 +279,9 @@ def update_svm_graph(
         l = [t for t in STATISTICS if t[0] == quantity_statistics]
         figure_along_optima = figs.serve_along_optima_figure(CB, l[0], change_threshold=change_threshold)
     
-        return  html.Div(
-                    id="svm-graph-container",
-                    children=[
-                        dcc.Loading(
-                            className="graph-wrapper",
-                            children=dcc.Graph(id="graph-phasespace", figure=figure_phasespace),
-                            style={"display": "none"},
-                        ),
-                        dcc.Loading(
-                            className="graph-wrapper2",
-                            children=dcc.Graph(id="graph-along-optima", figure=figure_along_optima),
-                            style={"display": "none"},
-                        ),
-                    ]
-                )               
+        return  figure_phasespace,figure_along_optima
     else:
-        return []
+        return figs.make_default_figure(), figs.make_default_figure()
 
 
 # Running the server

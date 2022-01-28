@@ -11,7 +11,17 @@ import scipy.stats as stats
 sys.path.append('../../Modules/')
 from ClustersInOutCell import ClustersInOutCell
 
+def make_default_figure():
+    layout = go.Layout(
+        title = "Plot 2 (Statistic along line of optima)",
+        plot_bgcolor="#282b38",
+        paper_bgcolor="#282b38",
+        font={"color": "#a5b1cd"},        
+        xaxis=dict(title="minPts"),        
+    )
 
+    figure = go.Figure(layout=layout)   
+    return figure
 
 
 def serve_scatterplot(xc,labels=None):
