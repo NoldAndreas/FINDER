@@ -1,2 +1,0 @@
-# optimal parameter for minPts = 10
-80.417698
