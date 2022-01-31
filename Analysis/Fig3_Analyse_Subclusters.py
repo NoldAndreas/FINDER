@@ -18,6 +18,7 @@ import numpy as np
 from Clustering import Clustering
 from Definitions import hue_order, get_datafolder
 
+basefolder = get_datafolder()
 
 my_pal = {'FINDER_1D_loop':'#701ac0',\
           'CAML_07VEJJ':'#eabe8e',\
@@ -35,7 +36,6 @@ dict_algo_names_ = {"OPTICS":"OPTICS",
                     "FINDER_1D":"FINDER_1D (DBSCAN)"
                     }
 
-basefolder = get_datafolder()
 
 base       = basefolder+"/Results_Fig3/";
 name_3mers = "Results_3mers";
@@ -157,7 +157,6 @@ df_3mers.loc[mask,'subcl'] = 10;
 PlotHistograms(axs[1:,0],df_3mers);
 
 #****************************************************************
-#base     = "/Users/andreas/Documents/NoiseRecognizer_Data/Results_2020_11_06_08_38_48_0/";
 filename = name_4mers+"_subclusters0_0.txt";
 
 df_4mers = pd.read_csv(base+filename);   

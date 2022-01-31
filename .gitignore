@@ -1,5 +1,7 @@
 *.pdf
 *.tif
+*.cpython-38.pyc
+Modules/__pycache__/
 Code/__pycache__
 Code/CAML/__pycache__
 Data/CAML/Output

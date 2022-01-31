@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from Basefolder import basefolder
+from Definitions import basefolder
 import time
 import numpy as np
 from Finder_1d import Finder_1d

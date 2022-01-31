@@ -86,31 +86,34 @@ class CellSegmentation:
         #OUTPUT_MODE 1 = basic output (txt files for images)
         #OUTPUT_MODE 2 = plot output (plots,graphs etc)
 
-        if not os.path.exists(self.__get_outputfolder()):
-            os.makedirs(self.__get_outputfolder())
+        if not os.path.exists(self.__get_inout_folder()):
+            os.makedirs(self.__get_inout_folder())
 
-    def __get_outputfolder(self):
+    def __get_inout_folder(self, inout="Output", filename=None):
         """return name of output folder"""
-        return self.basefolder + 'Output/'
+        if filename==None:
+            return os.path.join(self.basefolder,inout)
+        else:
+            return os.path.join(self.basefolder, inout, filename)
 
     def load_parameters(self):
         """loads parameters from file or sets default parmeters"""
 
-        parameterfile = self.basefolder+'Input/PARAMETERS_splitInOutCell.json'
+        parameterfile = self.__get_inout_folder(inout="Input", filename='PARAMETERS_splitInOutCell.json')
         if os.path.isfile(parameterfile):
             with open(parameterfile) as json_file:
                 parameters = json.load(json_file)
         else:
             parameters = {"quantile_of_nonzero":True,\
-                        "intensity_quantile_cutoff":0.9,\
-                        "sigma_gaussian_filter":10,\
-                        "N_x":1000,\
-                        "pad_cell_border":20}# in pixels (see N_x for pixel number in x-direction)
+                          "intensity_quantile_cutoff":0.9,\
+                          "sigma_gaussian_filter":10,\
+                          "N_x":1000,\
+                          "pad_cell_border":20}# in pixels (see N_x for pixel number in x-direction)
         return parameters
 
     def save_parameters(self):
         """saves parameters to file"""
-        with open(self.__get_outputfolder()+'PARAMETERS_splitInOutCell.json', 'w') as json_file:
+        with open(self.__get_inout_folder(filename='PARAMETERS_splitInOutCell.json'), 'w') as json_file:
             json.dump(self.parameters, json_file, indent=4)
 
 
@@ -133,20 +136,20 @@ class CellSegmentation:
         x, y = np.meshgrid((xedges[1:] + xedges[:-1]) / 2, (yedges[1:] + yedges[:-1]) / 2)
 
         if self.output_mode >= 1:
-            np.savetxt(self.__get_outputfolder()+name+"_H.txt", h, fmt="%f")
+            np.savetxt(self.__get_inout_folder(filename=name+"_H.txt"), h, fmt="%f")
 
         if self.output_mode >= 2:
             _, ax = plt.subplots(1, 1, figsize=(5, 5))
             ax.imshow(h, cmap='gray', vmax=5)
             ax.axis('off')
-            plt.savefig(self.__get_outputfolder()+name+'_image.pdf')
+            plt.savefig(self.__get_inout_folder(filename=name+'_image.pdf'))
 
         return h, x, y
 
     def segmentation(self):
         """splits localizations into low- and high-density region (out vs incell)"""
 
-        outputfolder = self.__get_outputfolder()
+        outputfolder = self.__get_inout_folder()
         parameters = self.parameters
 
         # if(os.path.isfile(outputfolder+'X_incell.txt') and \
@@ -154,7 +157,7 @@ class CellSegmentation:
         #     xc_incell = self.load_points(outputfolder+'X_incell.txt')
         #     xc_outcell = self.load_points(outputfolder+'X_outcell.txt')
         #else:
-        xc = load_points(self.basefolder+'Input/XC.hdf5')
+        xc = load_points(self.__get_inout_folder('Input','XC.hdf5'))
 
         # Step 1: Produce image
         h, x, y = self.get_image_from_localizations(xc, parameters['N_x'], 'heatmap_XC')

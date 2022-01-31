@@ -14,7 +14,7 @@ from  PlotScatter import PlotScatter
 #import matplotlib.pyplot as plt
 #import seaborn as sns
 import numpy as np
-from Basefolder import basefolder
+from Definitions import basefolder
 
 def ComputeSeries(basefolder, input_filename, name_):
 

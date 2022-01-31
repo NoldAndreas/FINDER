@@ -1,6 +1,7 @@
 """performs clustering in given window"""
+
 import sys
-sys.path.append("../Modules/")
+sys.path.append("Modules/")
 
 import os
 import numpy as np
@@ -8,16 +9,12 @@ import h5py
 import json
 from datetime import datetime
 from ClustersInOutCell import ClustersInOutCell
+from Definitions import get_datafolder
 #filename      = sys.argv[1];
 #OUTPUTFOLDER  = sys.argv[2];
 
-#OUTPUTFOLDER = "/Users/andreas/Documents/PostDoc/Clustering/\
-#NoiseRecognizer_WorkingVersion/AnalysisDataOrganized/TTX_control_new/Output/"
+OUTPUTFOLDER = get_datafolder(os.path.join('Data_AnalysisOrganized','Fig3_3mers','Output'))
 
-OUTPUTFOLDER = "/Users/andreas/Documents/PostDoc/Clustering/ClusterAnalyser/Data_AnalysisOrganized/Fig3_3mers/Output/"
-
-#OUTPUTFOLDER_WINDOW = "/Users/andreas/Documents/PostDoc/Clustering/\
-#NoiseRecognizer_WorkingVersion/AnalysisDataOrganized/TTX_control_1/Output/2021_09_30__20_13_56/"
 
 points_per_dimension = 25
 skipSimilarityScore = True
@@ -45,7 +42,7 @@ def define_window(xc_incell, xc_outcell, n_select, outputfolder):
     #get timestamp for window
     now = datetime.now() # current date and time
     date_time = now.strftime("%Y_%m_%d__%H_%M_%S")
-    outputfolder_window = outputfolder + date_time+"/"
+    outputfolder_window = os.path.join(outputfolder,date_time)+os.path.sep
     if not os.path.exists(outputfolder_window):
         os.makedirs(outputfolder_window)
 
@@ -85,10 +82,10 @@ def select_points(xc, n_select):
     return xc[rs < r], xy_center, r
 
 
-if(os.path.isfile(OUTPUTFOLDER+'X_incell.txt') and \
-    os.path.isfile(OUTPUTFOLDER+'X_outcell.txt')):
-    XC_INCELL = load_points(OUTPUTFOLDER+'X_incell.txt')
-    XC_OUTCELL = load_points(OUTPUTFOLDER+'X_outcell.txt')
+
+
+XC_INCELL = load_points(os.path.join(OUTPUTFOLDER,'X_incell.txt'))
+XC_OUTCELL = load_points(os.path.join(OUTPUTFOLDER,'X_outcell.txt'))
 
 OUTPUTFOLDER_WINDOW = define_window(XC_INCELL, XC_OUTCELL,\
                         N_SELECT, OUTPUTFOLDER)

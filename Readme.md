@@ -23,7 +23,7 @@
 	- To test this, leave the file ```Fig3_a_3mers.json``` as only file in the input folder, then run ```python3 ComputeSeries.py```. This re-computes the clustering results shown in Fig. 3a. 
 	- Runtime: The example ```Fig3_a_3mers.json``` runs in <2 minutes on a local machine (2,3 GHz Quad-Core Intel Core i5, 8 GB 2133 MHz LPDDR3). Running the ```*.json``` files from ```Results_Fig4``` takes >1hr for each file. The localization-source data for Figure 5 is not included in the repository, but processed files can be found in the respective folders.
 
-3. (TO CHANGE) To run the FINDER algorithm on your own localization data, add 
+3. To run the FINDER algorithm on your own localization data, add 
 
 ```
 from Finder_1d import Finder_1d
