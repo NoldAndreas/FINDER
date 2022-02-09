@@ -63,9 +63,9 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
             success = False
 
             #Change back to original working directory
-        #if os.getcwd() != cwd:
-        #    os.chdir(cwd)
-        #    print('Changed working directory back to ' + cwd)
+        if os.getcwd() != cwd:
+            os.chdir(cwd)
+            print('Changed working directory back to ' + cwd)
         
         
     if(True):   
