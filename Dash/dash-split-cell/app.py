@@ -21,7 +21,6 @@ import utils.cell_segmentation as cell
 
 matplotlib.pyplot.switch_backend('Agg')
 
-#CELLNAME = "/Users/andreas/Documents/PostDoc/Clustering/NoiseRecognizer_WorkingVersion/AnalysisDataOrganized/TTX_control_new/"
 BASEDIR = "../../../Data_AnalysisOrganized/" 
 
 DIRS = sorted((f for f in os.listdir(BASEDIR) if not f.startswith(".")), key=str.lower)

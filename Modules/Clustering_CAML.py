@@ -3,14 +3,15 @@
 
 import sys
 import numpy as np
+import os, shutil
 
 def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):    
 
+    print(os.getcwd())
     print(datafolder);
     datafolder = datafolder + 'CAML/';
     #*********************
-    #Delete all content in folder
-    import os, shutil
+    #Delete all content in folder    
     for filename in os.listdir(datafolder + "Output/"):
         file_path = os.path.join(datafolder + "Output/", filename)
         try:
@@ -53,9 +54,19 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
         model_fname        = datafolder + 'CAML_TrainedModels/2D/12 Layers/07VEJJ (2D, 100 NN)/07VEJJ - Norm-Self Train(500.0k,0.5×Clus) Val(100.0k,0.5×Clus).h5';       
     
     if(True):
-        with open("CAML/1.0_Data_Preparation.py") as f:        
-            code = compile(f.read(), "CAML/1.0_Data_Preparation.py", 'exec')
-            exec(code,globals())
+        try:
+            with open("CAML/1.0_Data_Preparation.py") as f:        
+                code = compile(f.read(), "CAML/1.0_Data_Preparation.py", 'exec')
+                exec(code,globals())
+        except:
+            print("Execution of CAML/1.0_Data_Preparation.py halted");
+            success = False
+
+            #Change back to original working directory
+        #if os.getcwd() != cwd:
+        #    os.chdir(cwd)
+        #    print('Changed working directory back to ' + cwd)
+        
         
     if(True):   
         try:

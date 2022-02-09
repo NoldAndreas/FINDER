@@ -14,9 +14,9 @@ from ComputeSeries import ComputeSeries
 
 from Definitions import get_datafolder
 
-basefolder = get_datafolder()
+basefolder = get_datafolder()+'/'
 
-filenamesList = glob.glob(basefolder+'Input/*.json')
+filenamesList = glob.glob(os.path.join(basefolder,'Input','*.json'))
 
 if not os.path.isdir(basefolder+'Output/'):
     os.mkdir(basefolder+'Output/')
