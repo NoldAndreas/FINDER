@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.spatial.distance as dist
 import glob
+import os
 
 #Geometry base class
 
@@ -43,7 +44,9 @@ class Geometry_Base:
         data_template_clusters = [];
         folder_ = self.unitCluster_Library;
 
-        filenamesList = glob.glob(self.basefolder +'TemplateClusters/'+ folder_+'/cluster_*.txt');
+        template_clusters_paths = os.path.join(self.basefolder, 'TemplateClusters', folder_, 'cluster_*.txt')
+
+        filenamesList = glob.glob(template_clusters_paths);
         for fn in filenamesList:
             XS_i = np.loadtxt(fn, comments="#", delimiter=" ", unpack=False);
             data_template_clusters.append(XS_i); 

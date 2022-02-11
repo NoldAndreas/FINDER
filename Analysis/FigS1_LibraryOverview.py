@@ -74,8 +74,10 @@ for library_type in ['Clusters_Neuron','Clusters_DNA_1mers']:
     ax.set_xticks([]);
     ax.set_yticks([]);
     ax.axis('off');
+
+    plt.show()
     
     print('Larges cluster diameter: '+str(G.GetTypicalDiameter_of_templateClusters()))
     
-    plt.savefig(basefolder + 'FigS1_Library_'+library_type+'.pdf',bbox_inches="tight");
-    print('Figure saved in: '+basefolder+'FigS1_Library_'+library_type+'.pdf');
+    plt.savefig(basefolder + '/FigS1_Library_'+library_type+'.pdf',bbox_inches="tight");
+    print('Figure saved in: '+basefolder+'/FigS1_Library_'+library_type+'.pdf');

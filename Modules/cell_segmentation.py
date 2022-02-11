@@ -87,7 +87,9 @@ class CellSegmentation:
         #OUTPUT_MODE 2 = plot output (plots,graphs etc)
 
         if not os.path.exists(self.__get_inout_folder()):
+            print("creating the output folder...")
             os.makedirs(self.__get_inout_folder())
+            print("output folder created in " + basefolder)
 
     def __get_inout_folder(self, inout="Output", filename=None):
         """return name of output folder"""
@@ -104,6 +106,7 @@ class CellSegmentation:
             with open(parameterfile) as json_file:
                 parameters = json.load(json_file)
         else:
+            print("parameterfile not found. Using default parameters.")
             parameters = {"quantile_of_nonzero":True,\
                           "intensity_quantile_cutoff":0.9,\
                           "sigma_gaussian_filter":10,\
@@ -194,5 +197,7 @@ class CellSegmentation:
         if self.output_mode >= 1:
             self.get_image_from_localizations(xc_incell, parameters['N_x'], 'heatmap_XCincell')
             self.get_image_from_localizations(xc_outcell, parameters['N_x'], 'heatmap_XCoutcell')
+
+        print("segmentation completed successfully")
 
         return xc_incell, xc_outcell
