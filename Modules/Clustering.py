@@ -44,16 +44,20 @@ class Clustering:
             
             clustering_optics = OPTICS(min_samples=threshold, xi=xi,max_eps=eps_max,metric=euclidean,cluster_method='xi').fit(XC); # min_cluster_size=.05
             labels = clustering_optics.labels_;
+
         if('CAML' in algo):
             labels = Clustering_CAML(algo,XC,datafolder=self.basefolder);       
-        elif(algo == 'FINDER_1D_loop'):                
+
+        elif(algo == 'FINDER_1D_loop'):
             FD      = Finder_1d(algo='DbscanLoop');
             labels  = FD.fit(XC);                
             result_ = FD.selected_parameters;
-        elif(algo == 'FINDER_1D'):                
+
+        elif(algo == 'FINDER_1D'):
             FD      = Finder_1d(algo='dbscan');
             labels  = FD.fit(XC);                
             result_ = FD.selected_parameters;
+
         elif(algo == 'dbscan'):
             params_     = params['dbscan'];
             eps         = params_['eps']; 

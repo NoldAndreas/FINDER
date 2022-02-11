@@ -20,8 +20,9 @@ filenamesList = glob.glob(os.path.join(basefolder,'Input','*.json'))
 
 if not os.path.isdir(basefolder+'Output/'):
     os.mkdir(basefolder+'Output/')
-
+print("Computing 'ComputeSeries' on the following files:")
 print(filenamesList)
+print()
 
 for i,fn in enumerate(filenamesList):
     fn_ = os.path.basename(fn)

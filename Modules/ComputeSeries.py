@@ -17,7 +17,17 @@ import numpy as np
 from Definitions import basefolder
 
 def ComputeSeries(basefolder, input_filename, name_):
+    """
 
+    Parameters
+    ----------
+    basefolder:
+        Folder in which the data are stored
+    input_filename:
+        Path to the input file
+    name_:
+
+    """
     print('Loading parameters from '+input_filename+' ...');
     with open(input_filename, 'r') as fp:
         params = json.load(fp)
