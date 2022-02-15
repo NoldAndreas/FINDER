@@ -4,6 +4,7 @@
 import sys
 sys.path.append("Modules/")
 
+import os
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,7 +35,7 @@ my_pal = {'FINDER_1D_loop':'#701ac0',\
         };    
     
 
-results_folder    = basefolder + "Results_Fig5/"
+results_folder    = os.path.join(basefolder, "Results_Fig5")
 case              = 'protein_ttx_1hr_2';#'neuron';#'protein_ttx_1hr_2';
 computeClustering    = False;
 plotFullImage        = True;
@@ -205,7 +206,7 @@ def PlotImageNoNoise(XC,labels,name):
     ax.set_yticks([]);
     ax.axis('off');
     
-    plt.savefig(results_folder+case+"_overview_"+name+"_noNoise.png",dpi=300,bbox_inches="tight");    
+    plt.savefig(results_folder+"/"+case+"_overview_"+name+"_noNoise.png",dpi=300,bbox_inches="tight");
 
 plt.rcParams['axes.facecolor'] = 'w';
 
@@ -226,7 +227,7 @@ if(computeClustering):
         
     XC        = np.unique(XC,axis=0);
     XC        = datascale*XC;
-    np.savetxt(results_folder+'XC_analysed.txt',XC,fmt="%f %f");
+    np.savetxt(results_folder+'/XC_analysed.txt',XC,fmt="%f %f");
     
     #*********************************************
     
@@ -239,19 +240,19 @@ if(computeClustering):
     DB              = DBSCAN(eps=sigma,min_samples=threshold).fit(XC);
     labels_DBSCAN   = DB.labels_;   
     print('Compute time DBSCAN: '+str(time.time()-t1)+' seconds'); 
-    np.savetxt(results_folder+case+'_labels_DBSCAN.txt',labels_DBSCAN,fmt="%.0f", header='DBSCAN time: '+str(time.time()-t1)+' seconds');
+    np.savetxt(results_folder+"/"+case+'_labels_DBSCAN.txt',labels_DBSCAN,fmt="%.0f", header='DBSCAN time: '+str(time.time()-t1)+' seconds');
     
     print('Clustering using CAML_07VEJJ ...');
     t1 = time.time();
     labels_CAML_07VEJJ = Clustering_CAML('CAML_07VEJJ',XC,datafolder=basefolder);           
     print('Compute time CAML_07VEJJ: '+str(time.time()-t1)+' seconds');
-    np.savetxt(results_folder+case+'_labels_CAML_07VEJJ.txt',labels_CAML_07VEJJ,fmt="%.0f", header='CAML_07VEJJ time: '+str(time.time()-t1)+' seconds');    
+    np.savetxt(results_folder+"/"+case+'_labels_CAML_07VEJJ.txt',labels_CAML_07VEJJ,fmt="%.0f", header='CAML_07VEJJ time: '+str(time.time()-t1)+' seconds');
     
     print('Clustering using CAML_87B144 ...');
     t1 = time.time();
     labels_CAML_87B144 = Clustering_CAML('CAML_87B144',XC,datafolder=basefolder);           
     print('Compute time CAML_87B144: '+str(time.time()-t1)+' seconds');
-    np.savetxt(results_folder+case+'_labels_CAML_87B144.txt',labels_CAML_87B144,fmt="%.0f", header='CAML_87B144 time: '+str(time.time()-t1)+' seconds');        
+    np.savetxt(results_folder+"/"+case+'_labels_CAML_87B144.txt',labels_CAML_87B144,fmt="%.0f", header='CAML_87B144 time: '+str(time.time()-t1)+' seconds');
 
     print('Clustering using FINDER ...');
     t1 = time.time();
@@ -264,19 +265,19 @@ if(computeClustering):
 
     #******************************************
     labels_all = np.asarray([labels_CAML_87B144,labels_DBSCAN,labels_FINDER,labels_CAML_07VEJJ]).T;
-    np.savetxt(results_folder+case+'_labels.txt',labels_all,fmt="%.0f %.0f %.0f %.0f", header='CAML_87B144 DBSCAN FINDER CAML_07VEJJ');
+    np.savetxt(results_folder+"/"+case+'_labels.txt',labels_all,fmt="%.0f %.0f %.0f %.0f", header='CAML_87B144 DBSCAN FINDER CAML_07VEJJ');
     
     sigma_selected_FINDER = FD.selected_parameters['sigma'];
-    np.savetxt(results_folder+case+'_FINDER_optimalSigma.txt',[sigma_selected_FINDER],fmt="%f", header='optimal parameter for minPts = 10');
+    np.savetxt(results_folder+"/"+case+'_FINDER_optimalSigma.txt',[sigma_selected_FINDER],fmt="%f", header='optimal parameter for minPts = 10');
 else:
-    XC                   = np.loadtxt(results_folder+'XC_analysed.txt');
-    labels_all           = np.loadtxt(results_folder+case+'_labels.txt');
+    XC                   = np.loadtxt(results_folder+"/"+'XC_analysed.txt');
+    labels_all           = np.loadtxt(results_folder+"/"+case+'_labels.txt');
     labels_CAML_87B144   = labels_all[:,0];
     labels_DBSCAN        = labels_all[:,1];
     labels_FINDER        = labels_all[:,2];   
     labels_CAML_07VEJJ   = labels_all[:,3];
     
-    sigma_selected_FINDER = np.loadtxt(results_folder+case+'_FINDER_optimalSigma.txt');
+    sigma_selected_FINDER = np.loadtxt(results_folder+"/"+case+'_FINDER_optimalSigma.txt');
     sigma_selected_FINDER = float(sigma_selected_FINDER);
 
 
@@ -308,7 +309,7 @@ if(plotFullImage):
     ax.axis('off');
     
     plt.text(0.15, 0.85, 'a', transform=plt.gcf().transFigure);
-    plt.savefig(results_folder+case+"_overview.png",dpi=300,bbox_inches="tight");
+    plt.savefig(results_folder+"/"+case+"_overview.png",dpi=300,bbox_inches="tight");
     
 if(plotFullImageNoNoise):
     PlotImageNoNoise(XC,labels_FINDER,"FINDER");
@@ -399,8 +400,8 @@ if(False):
         ax = axs[0,i];        
         PlotScatter(labels_,XC,ax=ax,ax_dist=axs[1,i],showScaleBar=(i==0));
         ax.set_title('DBSCAN (noisefree)\n minPts = 10, r = '+str(np.round(sigma,2))+' nm');   
-    plt.savefig(results_folder+case+"_DBSCAN_examples.pdf",bbox_inches="tight");
-    print('File saved in : '+ results_folder+case+"_DBSCAN_examples.pdf")
+    plt.savefig(results_folder+"/"+case+"_DBSCAN_examples.pdf",bbox_inches="tight");
+    print('File saved in : '+ results_folder+"/"+case+"_DBSCAN_examples.pdf")
 #*********************************************
 
 if(plotMainAnalysis):
@@ -423,8 +424,8 @@ if(plotMainAnalysis):
     axs[1,2].set_yticklabels(["",""]);
     
     plt.text(0.05, 0.9, 'b', transform=plt.gcf().transFigure);
-    plt.savefig(results_folder+case+"_results.pdf",bbox_inches="tight");
-    print('File saved in : '+ results_folder+case+"_results.pdf");
+    plt.savefig(results_folder+"/"+case+"_results.pdf",bbox_inches="tight");
+    print('File saved in : '+ results_folder+"/"+case+"_results.pdf");
 
 
 #FD      = Finder_1d(algo=dbscanType,threshold=threshold);#,points_per_dimension=20);
