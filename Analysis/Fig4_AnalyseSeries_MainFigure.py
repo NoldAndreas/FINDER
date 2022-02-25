@@ -39,7 +39,7 @@ my_pal = {'CAML_07VEJJ':'#eabe8e',\
 
 def PlotScatter(labels,XC,ax=[],optionScaleBarText = False):
  
-        if(labels == []):
+        if len(labels) == 0:
             labels = -np.ones((len(XC),));
             
         # Get correctly detected:
@@ -199,7 +199,7 @@ for i,filename in enumerate(filenamesList):
         params = json.load(fp)
         
 
-    df = pd.read_csv(basefolder + filename);   
+    df = pd.read_csv(basefolder + filename);
 
 
     mark = np.zeros(len(df),);
@@ -213,6 +213,7 @@ for i,filename in enumerate(filenamesList):
         optionScaleBarText = True;
     else:
         optionScaleBarText = False;
+
     boxplot_return = AnalyseSeries(df,params,basefolder+filename[:-4],axs[:,i],optionScaleBarText);
     axs[1,0].set_ylabel(dict_ylabel['true_positives_ratio']);
     axs[2,0].set_ylabel(dict_ylabel['false_positives_ratio']);

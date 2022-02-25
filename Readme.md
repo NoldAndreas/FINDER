@@ -28,9 +28,9 @@
 ```
 from Finder_1d import Finder_1d
 
-FD      = Finder_1d();
-labels  = FD.fit(XC);                
-result_ = FD.selected_parameters;
+FD      = Finder_1d()
+labels  = FD.fit(XC)                
+result_ = FD.selected_parameters
 ```
 
 to your code, analogous to DBSCAN in the sklearn.cluster package. FINDER will choose global clustering parameters according to the overall noise levels / the robustness detected in the dataset.
