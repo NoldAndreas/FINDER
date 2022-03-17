@@ -7,6 +7,9 @@ from   sklearn.cluster import DBSCAN
 import scipy.stats
 from Finder_1d import Finder_1d
 
+
+#TODO: this has no use in the project, it's just imported.
+
 class GridSampler:
     
     def __init__(self,XC,N_goal=10000):

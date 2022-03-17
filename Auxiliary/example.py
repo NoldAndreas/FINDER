@@ -27,6 +27,6 @@ print("Loaded " + str(len(XC)) + " points")
 
 print("----------STARTING FINDER---------")
 FD = Finder_1d()
-FD_labels = FD.fit(XC[:])
+FD_labels = FD.fit(XC[:2000])
 
 

@@ -21,19 +21,29 @@ class Geometry_Base:
     
     @abstractmethod
     def __init__(self,basefolder,unitCluster_Library):
+
+        """
+
+        Parameters
+        ----------
+        basefolder: str
+            The path to the folder containing the data.
+        unitCluster_Library
+            The cluster library one wants to use.
+        """
         
         #Values that have to be set in child classes:
-        self.basefolder = basefolder;
-        self.geometry_name = [];
-        self.XC = [];
-        self.N_clusters = [];
-        self.N_Noise = [];
-        self.labels_groundtruth = [];
-        self.parameters = [];
-        self.unitCluster_Library = unitCluster_Library;
-        self.seed = [];
+        self.basefolder = basefolder
+        self.geometry_name = []
+        self.XC = []
+        self.N_clusters = []
+        self.N_Noise = []
+        self.labels_groundtruth = []
+        self.parameters = []
+        self.unitCluster_Library = unitCluster_Library
+        self.seed = []
 
-        self.__loadUnitClusters();
+        self.__loadUnitClusters()
         
     #Methods that need to be set in child classes:
     @abstractmethod        

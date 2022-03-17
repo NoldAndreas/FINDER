@@ -18,7 +18,7 @@ import seaborn as sns
 from Geometry_Grid import Geometry_Grid
 from Finder_1d import Finder_1d
 from Definitions import get_datafolder
-basefolder = get_datafolder()
+basefolder = get_datafolder() +"/"
 
 plt.rcParams['axes.facecolor'] = 'w'
 
@@ -96,7 +96,9 @@ for dbscanType in ['dbscan','DbscanLoop']:
         #Test: What does testset look like?
         G.PlotScatter(basefolder+name+"_Groundtruth.pdf");        
         XC = G.XC;        
-        FD      = Finder_1d(algo=dbscanType,threshold=threshold,points_per_dimension=points_per_dimension);#,points_per_dimension=20);
+        FD      = Finder_1d(algo=dbscanType,threshold=threshold,points_per_dimension=points_per_dimension
+                            #, one_two_d="oneD"
+                            );#,points_per_dimension=20);
         labels  = FD.fit(XC);       
         
         

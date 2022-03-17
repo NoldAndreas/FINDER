@@ -4,7 +4,12 @@ from sklearn.cluster import DBSCAN
 
 class DbscanLoop:
 
+
+
     def __init__(self, eps, min_samples):
+        """
+        The implementation of the *noise free* implementation of DBscan, described in the paper.
+        """
         self.eps = eps
         self.min_samples = min_samples
 

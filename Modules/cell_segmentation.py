@@ -74,6 +74,7 @@ def select_incell(labels, h):
 
     return im_incell
 
+
 class CellSegmentation:
     """splits localizations into inside and outside cell and clusters subset"""
 

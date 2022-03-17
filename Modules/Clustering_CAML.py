@@ -59,7 +59,7 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
                 code = compile(f.read(), "CAML/1.0_Data_Preparation.py", 'exec')
                 exec(code,globals())
         except:
-            print("Execution of CAML/1.0_Data_Preparation.py halted");
+            print("Execution of CAML/1.0_Data_Preparation.py halted")
             success = False
 
             #Change back to original working directory
