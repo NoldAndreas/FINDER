@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-hue_order = ['FINDER_1D_loop',
-             'FINDER_1D',
+hue_order = ['FINDER_loop',
+             'FINDER',
              'dbscan',
              'CAML_87B144',
              'CAML_07VEJJ',
@@ -19,8 +19,8 @@ hue_order = ['FINDER_1D_loop',
 # e8a358
 my_pal = {'CAML_07VEJJ': '#eabe8e',
           'CAML_87B144': '#d67d1d',
-          'FINDER_1D_loop': '#701ac0',
-          'FINDER_1D': '#af6eeb',
+          'FINDER_loop': '#701ac0',
+          'FINDER': '#af6eeb',
           'dbscan': 'dimgrey',
           'OPTICS': 'lightgrey',
           }
@@ -50,12 +50,13 @@ def PlotScatter(labels, XC, ax=[], filename=None):
         fig, ax = plt.subplots()
 
     mark = (labels == -1)
-    sns.scatterplot(x=XC[mark, 0], y=XC[mark, 1], color='grey', s=1, alpha=0.2, ax=ax)
+    sns.scatterplot(x=XC[mark, 0], y=XC[mark, 1], color='grey',
+                    s=10, alpha=0.2, ax=ax)
 
     mark = (labels >= 0)
     sns.scatterplot(x=XC[mark, 0], y=XC[mark, 1], hue=labels[mark],
                     palette='deep',
-                    s=1,
+                    s=10,
                     legend=False, ax=ax)
     ax.set_aspect('equal')
 
@@ -72,4 +73,4 @@ def PlotScatter(labels, XC, ax=[], filename=None):
         plt.savefig(filename)
 
     # if(ax==[]):
-    plt.show()
+    #plt.show()

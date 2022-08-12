@@ -7,6 +7,7 @@ Created on Tue Oct 20 14:51:43 2020
 """
 
 import numpy as np
+import pandas as pd
 from sklearn.cluster import OPTICS
 from scipy.spatial.distance import euclidean
 from Clustering_CAML import Clustering_CAML
@@ -40,7 +41,7 @@ class Clustering:
         self.basefolder = basefolder
         self.min_overlap_per_ref = 0.3
 
-    def fit(self, algo, params=[]):
+    def fit(self, algo, params= None):
         """
         
         Parameters
@@ -64,6 +65,9 @@ class Clustering:
             the labels of the clustering.
 
         """
+
+        if params is None:
+            params = []
 
         self.algo = algo
         XC = self.Geometry.XC
@@ -95,15 +99,33 @@ class Clustering:
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
-        elif algo == 'FINDER_loop':
+        elif algo == 'FINDER_full_loop':
             FD = Finder_1d(algo='DbscanLoop')
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
-        elif algo == 'FINDER':
+        elif algo == 'FINDER_full':
             FD = Finder_1d(algo='dbscan')
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
+
+        elif algo == 'FINDER_loop':
+            FD = Finder_1d(algo='DbscanLoop',similarity_score_computation="threshold")
+            labels = FD.fit(XC)
+            result_ = FD.selected_parameters
+
+            phase_space = FD.phasespace
+            phase_space.to_pickle(self.basefolder + "phasespace.pkl")
+
+        elif algo == 'FINDER':
+            FD = Finder_1d(algo='dbscan', similarity_score_computation="threshold")
+            labels = FD.fit(XC)
+            result_ = FD.selected_parameters
+
+            phase_space = FD.phasespace
+            phase_space.to_pickle(self.basefolder + "phasespace.pkl")
+
+
 
         elif algo == 'dbscan':
             params_ = params['dbscan']
@@ -111,6 +133,7 @@ class Clustering:
             min_samples = params_['min_samples']
             DB = DBSCAN(eps=eps, min_samples=min_samples).fit(XC)
             labels = DB.labels_
+
 
         # clustering_optics = OPTICS(min_samples=threshold, xi=sigma,max_eps=0.3,metric=euclidean,cluster_method='xi').fit(XC) # min_cluster_size=.05
 
@@ -318,4 +341,4 @@ class Clustering:
 
         plt.savefig(filename)
 
-        plt.show()
+        #plt.show()

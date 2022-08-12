@@ -16,23 +16,27 @@ from Definitions import get_datafolder
 
 
 basefolder = get_datafolder()
-hue_order = ['FINDER_1D_loop','CAML_07VEJJ','CAML_87B144']
+hue_order = ['FINDER_loop','CAML_07VEJJ','CAML_87B144']
 
-show_algos = ['FINDER_1D_loop','CAML_87B144','CAML_07VEJJ']
+show_algos = ['FINDER_loop','CAML_87B144','CAML_07VEJJ']
 
 dict_algo_names_ = {"OPTICS":"OPTICS",
                     "dbscan":"DBSCAN",
                     "CAML_07VEJJ":"CAML (07VEJJ)",
                     "CAML_87B144":"CAML (87B144)",
-                    "FINDER_1D_loop":"FINDER",
-                    "FINDER_1D":"FINDER  with DBSCAN"
+                    #"FINDER_1D_loop":"FINDER",
+                    #"FINDER_1D":"FINDER  with DBSCAN"
+                    "FINDER_loop":"FINDER",
+                    "FINDER":"FINDER  with DBSCAN"
                     }
 
 
 my_pal = {'CAML_07VEJJ':'#eabe8e',\
           'CAML_87B144':'#d67d1d',\
-          'FINDER_1D_loop':'#701ac0',\
-          'FINDER_1D':'#af6eeb',\
+          #'FINDER_1D_loop':'#701ac0',\
+          #'FINDER_1D':'#af6eeb', \
+          'FINDER_loop': '#701ac0', \
+          'FINDER': '#af6eeb', \
           'dbscan':'dimgrey',\
           'OPTICS':'lightgrey',\
         }

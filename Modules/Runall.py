@@ -17,6 +17,7 @@ from Definitions import get_datafolder
 basefolder = get_datafolder()+'/'
 
 filenamesList = glob.glob(os.path.join(basefolder,'Input','*.json'))
+filenamesList.sort()
 
 if not os.path.isdir(basefolder+'Output/'):
     os.mkdir(basefolder+'Output/')
@@ -25,8 +26,9 @@ print(filenamesList)
 print()
 
 for i,fn in enumerate(filenamesList):
+
     fn_ = os.path.basename(fn)
-    print('Running ',fn_,' ..')
+    print('Running ', fn_, ' ..')
 
     ComputeSeries(basefolder, basefolder+'Input/'+fn_, str(i))
 

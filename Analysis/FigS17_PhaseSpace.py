@@ -5,10 +5,12 @@ Created on Fri Feb 12 22:26:43 2021
 
 @author: andreas
 """
+import os.path
 import sys
-sys.path.append("Modules/")
+
 
 import numpy as np
+import pandas as pd
 from matplotlib import style
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,9 +21,12 @@ import h5py
 from Finder_1d import Finder_1d
 
 from Definitions import get_datafolder
-basefolder = get_datafolder()
+data_folder = get_datafolder()
+base_folder = get_datafolder("")
 
-style.use('ClusterStyle')
+
+sys.path.append("Modules/")
+#style.use('ClusterStyle')
 
 #****************************
 # Parameters
@@ -47,82 +52,119 @@ my_pal = {'CAML_07VEJJ':'#eabe8e',\
     
 algo = "DbscanLoop";
 
+
+do_computation = False
+
 #****************************
 # Load points
 #****************************
 for case in ["neuron","ttx"]:
+    if do_computation == True:
+        if(case == "neuron"):
+            XC      = np.loadtxt(data_folder + '/TemplateClusters/NeuronData/dendrite_example_Cell1_GluA2_40I_ROI1_1_MMStack_Pos0.ome_locs_render_driftCorr_filter_render_pix.6fr20_picked2_picked3.txt');
+        elif(case == "ribosome"):
+            XS      = np.loadtxt(data_folder + '/TemplateClusters/RibosomeData/40s.txt');
+            mark    = (XS[:,0]>360)*(XS[:,0]<380)*(XS[:,1]>260)*(XS[:,1]<280);
+            XC      = XS[mark,:];
+        elif(case=="ttx"):
+            datascale   = 158;
+            filename = 'TemplateClusters/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5';
+            f        = h5py.File(data_folder + filename, 'r')
+            dset     = f['locs'];
+            XC       = np.stack((dset["x"],dset["y"])).T
+            XC        = datascale*XC;
+            XC        = np.unique(XC,axis=0);
 
-    if(case == "neuron"):
-        XC      = np.loadtxt(basefolder+'/TemplateClusters/NeuronData/dendrite_example_Cell1_GluA2_40I_ROI1_1_MMStack_Pos0.ome_locs_render_driftCorr_filter_render_pix.6fr20_picked2_picked3.txt');
-    elif(case == "ribosome"):
-        XS      = np.loadtxt(basefolder+'/TemplateClusters/RibosomeData/40s.txt');
-        mark    = (XS[:,0]>360)*(XS[:,0]<380)*(XS[:,1]>260)*(XS[:,1]<280);
-        XC      = XS[mark,:];
-    elif(case=="ttx"):
-        datascale   = 158;
-        filename = 'TemplateClusters/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5';    
-        f        = h5py.File(basefolder+filename, 'r')    
-        dset     = f['locs'];
-        XC       = np.stack((dset["x"],dset["y"])).T  
-        XC        = datascale*XC;
-        XC        = np.unique(XC,axis=0);
-        
-        lims_x = [37000,43000];
-        lims_y = [4000,10000];    
-        
-        markPlot = (XC[:,0]>lims_x[0])*(XC[:,0]<lims_x[1])*(XC[:,1]>lims_y[0])*(XC[:,1]<lims_y[1]);        
-        XC       = XC[markPlot,:];
-    
-        
-    print("Loaded "+str(len(XC))+' localizations');
-    #****************************
-    # Get Sigma boundaries
-    #****************************
-    
-    
-    # initialize model
-    neigh = NearestNeighbors(n_neighbors=k+1, n_jobs=-1)
-    # train for getting nearest neighbour
-    neigh.fit(XC);
-    dist_, ind = neigh.kneighbors(XC);
-    
-    # We have no use of indices here
-    # dist is a 2 dimensional array of shape (10000, 9) in which each row is list of length 9. This row contain distances to all 9 nearest points. But we need distance to only 9th nearest point. So
-    nPt_distance = [dist_[i][k - 1] for i in range(len(dist_))]
-    
-    #CD_sorted = np.sort(dist.squareform(dist.pdist(XC)),axis=1);      
-    sigma_min = np.quantile(nPt_distance,0.2);
-    sigma_max = np.quantile(nPt_distance,0.99);    
-                                 
-                    
-    #****************************
-    #Get Vector of thresholds an sigmas:
-    #****************************
-        
-    #thresholds = np.unique((np.exp(np.linspace(np.log(minPts_min),np.log(minPts_max),n))).astype(int));
-    sigmas     = np.unique(np.exp(np.linspace(np.log(sigma_min),np.log(sigma_max),n)));
-    thresholds = np.arange(minPts_min,minPts_max+1);
-    
-    # Compute phasespace
-    noClustersMatrix = np.zeros((len(sigmas),len(thresholds)),dtype=int); 
-    data = {'sigma':[],
-            'minPts':[],
-            'noClusters':[]};
-    
-    print("Computing..")
-    for i1,sigma in enumerate(sigmas):
-        ps_t = []            
-        for i2,threshold in enumerate(thresholds):
-            if(algo=="dbscan"):
-                DB          = DBSCAN(eps=sigma,min_samples=threshold).fit(XC);
-            elif(algo=="DbscanLoop"):
-                DB          = DbscanLoop(eps=sigma,min_samples=threshold).fit(XC); 
-            labels      = DB.labels_;
-            noClustersMatrix[i1,i2] = np.max(labels)+1;
-    
-    FD      = Finder_1d(algo='DbscanLoop');
-    labels  = FD.fit(XC); 
-    
+            lims_x = [37000,43000];
+            lims_y = [4000,10000];
+
+            markPlot = (XC[:,0]>lims_x[0])*(XC[:,0]<lims_x[1])*(XC[:,1]>lims_y[0])*(XC[:,1]<lims_y[1]);
+            XC       = XC[markPlot,:];
+
+
+        print("Loaded "+str(len(XC))+' localizations');
+            #****************************
+        # Get Sigma boundaries
+        #****************************
+
+
+        # initialize model
+        neigh = NearestNeighbors(n_neighbors=k+1, n_jobs=-1)
+        # train for getting nearest neighbour
+        neigh.fit(XC);
+        dist_, ind = neigh.kneighbors(XC);
+
+        # We have no use of indices here
+        # dist is a 2 dimensional array of shape (10000, 9) in which each row is list of length 9. This row contain distances to all 9 nearest points. But we need distance to only 9th nearest point. So
+        nPt_distance = [dist_[i][k - 1] for i in range(len(dist_))]
+
+        #CD_sorted = np.sort(dist.squareform(dist.pdist(XC)),axis=1);
+        sigma_min = np.quantile(nPt_distance,0.2);
+        sigma_max = np.quantile(nPt_distance,0.99);
+
+        #****************************
+        #Get Vector of thresholds an sigmas:
+        #****************************
+
+        #thresholds = np.unique((np.exp(np.linspace(np.log(minPts_min),np.log(minPts_max),n))).astype(int));
+        sigmas     = np.unique(np.exp(np.linspace(np.log(sigma_min),np.log(sigma_max),n)));
+        thresholds = np.arange(minPts_min,minPts_max+1);
+
+        # Compute phasespace
+        noClustersMatrix = np.zeros((len(sigmas),len(thresholds)),dtype=int);
+        data = {'sigma':[],
+                'minPts':[],
+                'noClusters':[]};
+
+        print("Computing..")
+        for i1,sigma in enumerate(sigmas):
+            ps_t = []
+            for i2,threshold in enumerate(thresholds):
+                if(algo=="dbscan"):
+                    DB          = DBSCAN(eps=sigma,min_samples=threshold).fit(XC);
+                elif(algo=="DbscanLoop"):
+                    DB          = DbscanLoop(eps=sigma,min_samples=threshold).fit(XC);
+                labels      = DB.labels_;
+                noClustersMatrix[i1,i2] = np.max(labels)+1;
+
+        FD      = Finder_1d(algo='DbscanLoop');
+        labels  = FD.fit(XC);
+
+    else:
+        if case == "neuron":
+
+            pkl_path = os.path.join(data_folder,"phase_spaces","neuron_phasespace.pkl")
+            PS = pd.read_pickle(pkl_path)
+            # TODO: find the path
+            neuron_path = "/home/pietro/Documents/Mainz/Project_1_Andreas/Data_Figures/TemplateClusters/NeuronData/dendrite_example_Cell1_GluA2_40I_ROI1_1_MMStack_Pos0.ome_locs_render_driftCorr_filter_render_pix.6fr20_picked2_picked3.txt"
+            XC = np.loadtxt(neuron_path)
+
+            no_clusters = []
+
+            for i, row in PS.iterrows():
+                no_clusters.append(row["no_clusters"])
+
+            noClustersMatrix = (np.array(no_clusters).reshape(15,-1)) + 1
+            sigmas = np.unique(PS["sigma"])
+            thresholds = np.unique(PS["threshold"])
+
+        if case == "ttx":
+            pkl_path = os.path.join(data_folder,"phase_spaces","protein_ttx_1hr_2_phasespace.pkl")
+            PS = pd.read_pickle(pkl_path)
+            #TODO: check the path
+            filename = '/home/pietro/Documents/Mainz/Project_1_Andreas/Data_Figures/TemplateClusters/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5'
+            f = h5py.File(filename, 'r')
+            dset = f['locs'];
+            XC = np.stack((dset["x"], dset["y"])).T
+            no_clusters = []
+
+            for i, row in PS.iterrows():
+                no_clusters.append(row["no_clusters"])
+
+            noClustersMatrix = (np.array(no_clusters).reshape(15,-1)) + 1
+            sigmas = np.unique(PS["sigma"])
+            thresholds = np.unique(PS["threshold"])
+
     fig,axs = plt.subplots(figsize=(8,8));
     sns.heatmap(np.flipud(noClustersMatrix.T),xticklabels=np.round(sigmas,2),yticklabels=np.flipud(np.round(thresholds)),annot=True,fmt="d",ax=axs,cbar=False,cmap='Reds');
     sns.color_palette("light:b", as_cmap=True)
@@ -130,13 +172,13 @@ for case in ["neuron","ttx"]:
     axs.set_xlabel('Distance r (nm)');
     axs.set_ylabel('minPts');
     
-    plt.savefig(basefolder + "FigS17_18_a_"+case+"_Phasediagram.pdf",bbox_inches="tight");
-    print("File saved in : "+basefolder + "FigS17_18_a_"+case+"_Phasediagram.pdf");
+    plt.savefig(data_folder + "/FigS17_18_a_" + case + "_Phasediagram.pdf", bbox_inches="tight");
+    print("File saved in : " + data_folder + "/FigS17_18_a_" + case + "_Phasediagram.pdf");
     
     #*********************
     # Plot examples
     #*********************
-    sigmas_idx = [6,9,12,15]
+    sigmas_idx = [6,9,12,14]
     minPts_idx = [7,0];
     
     fig,axs = plt.subplots(2,4,figsize=(12,8));
@@ -162,5 +204,5 @@ for case in ["neuron","ttx"]:
             ax.set_yticks([]);
             ax.axis('off');
     
-    plt.savefig(basefolder + "FigS17_18_b_"+case+"_ClusteringResults.pdf",bbox_inches="tight");
-    print("File saved in : "+basefolder + "FigS17_18_a_"+case+"_Phasediagram.pdf");
+    plt.savefig(data_folder + "FigS17_18_b_" + case + "_ClusteringResults.pdf", bbox_inches="tight");
+    print("File saved in : " + data_folder + "FigS17_18_a_" + case + "_Phasediagram.pdf");

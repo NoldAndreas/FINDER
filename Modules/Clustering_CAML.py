@@ -9,7 +9,7 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
 
     print(os.getcwd())
     print(datafolder);
-    datafolder = datafolder + 'CAML/';
+    datafolder = datafolder + '/CAML/';
     #*********************
     #Delete all content in folder    
     for filename in os.listdir(datafolder + "Output/"):

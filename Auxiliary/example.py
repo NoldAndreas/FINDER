@@ -26,7 +26,10 @@ print("Loaded " + str(len(XC)) + " points")
 
 
 print("----------STARTING FINDER---------")
-FD = Finder_1d()
-FD_labels = FD.fit(XC[:2000])
+FD = Finder_1d(similarity_score_computation="threshold")
+FD_labels = FD.fit(XC[:10000])
+
+FD_1 = Finder_1d(similarity_score_computation="total")
+FD_1_labels = FD.fit(XC[:10000])
 
 

@@ -19,8 +19,6 @@ import scipy.spatial.distance as dist
 
 class Geometry_Grid(Geometry_Base):
 
-
-
     def __init__(self, basefolder, unitCluster_Library, n_side=2, Delta_ratio=1, noise_ratio=0.):
 
         super().__init__(basefolder, unitCluster_Library);
@@ -32,21 +30,6 @@ class Geometry_Grid(Geometry_Base):
         self.noise_ratio = noise_ratio;
 
     def GeneratePoints(self, seed):
-
-        """
-
-        Distribute the points on a regular grid.
-
-        1. Select n**2 clusters randomly and distribute on grid
-        2. Add noise to grid
-
-        Parameters
-        ----------
-        seed:
-            The random seed
-        '''
-
-        """
 
         n_side = self.parameters["n_side"];
         Delta_ratio = self.parameters["Delta_ratio"];

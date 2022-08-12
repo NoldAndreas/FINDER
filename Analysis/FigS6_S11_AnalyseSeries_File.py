@@ -18,7 +18,7 @@ from AnalyseSeries import AnalyseSeries_PlotCases
 from Definitions import get_datafolder
 basefolder = get_datafolder()
 
-filenamesList = glob.glob(basefolder+'Results_Fig4/Results_*.txt')
+filenamesList = glob.glob(basefolder+'/Results_Fig4/Results_*.txt')
 
 for filename in filenamesList:
     #Load corresponding parameter file:

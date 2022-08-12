@@ -13,7 +13,7 @@ from PlotScatter import PlotScatter
 from PlotScatter import my_pal
 import os
 
-hue_order = ['FINDER_1D_loop', 'FINDER_1D', 'CAML_07VEJJ', 'CAML_87B144', 'dbscan', 'OPTICS'];
+hue_order = ['FINDER_loop', 'FINDER', 'CAML_07VEJJ', 'CAML_87B144', 'dbscan', 'OPTICS'];
 
 dict_ylabel = {'true_positives_ratio': 'True positives (ratio)', \
                'false_positives_ratio': 'False positives (ratio)', \
@@ -27,8 +27,8 @@ dict_algo_names_ = {"OPTICS": "OPTICS",
                     "dbscan": "DBSCAN",
                     "CAML_07VEJJ": "CAML (07VEJJ)",
                     "CAML_87B144": "CAML (87B144)",
-                    "FINDER_1D_loop": "FINDER  with DBSCAN (noisefree)",
-                    "FINDER_1D": "FINDER  with DBSCAN"
+                    "FINDER_loop": "FINDER  with DBSCAN (noisefree)",
+                    "FINDER": "FINDER  with DBSCAN"
                     };
 
 

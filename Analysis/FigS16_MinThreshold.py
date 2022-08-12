@@ -24,8 +24,8 @@ dict_algo_names_ = {"OPTICS":"OPTICS",
                     "dbscan":"DBSCAN",
                     "CAML_07VEJJ":"CAML (07VEJJ)",
                     "CAML_87B144":"CAML (87B144)",
-                    "FINDER_1D_loop":"FINDER",
-                    "FINDER_1D":"FINDER  with DBSCAN"
+                    "FINDER_loop":"FINDER",
+                    "FINDER":"FINDER  with DBSCAN"
                     };
 
 basefolder = basefolder+'/Results_Fig4/';

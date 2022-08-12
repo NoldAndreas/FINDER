@@ -21,10 +21,10 @@ from Definitions import hue_order, get_datafolder
 
 basefolder = get_datafolder()
 
-my_pal = {'FINDER_1D_loop': '#701ac0',
+my_pal = {'FINDER_loop': '#701ac0',
           'CAML_07VEJJ': '#eabe8e',
           'CAML_87B144': '#d67d1d',
-          'FINDER_1D': '#af6eeb',
+          'FINDER': '#af6eeb',
           'dbscan': 'dimgrey',
           'OPTICS': 'lightgrey'
           }
@@ -33,8 +33,8 @@ dict_algo_names_ = {"OPTICS": "OPTICS",
                     "dbscan": "DBSCAN",
                     "CAML_07VEJJ": "CAML (07VEJJ)",
                     "CAML_87B144": "CAML (87B144)",
-                    "FINDER_1D_loop": "FINDER",
-                    "FINDER_1D": "FINDER_1D (DBSCAN)"
+                    "FINDER_loop": "FINDER",
+                    "FINDER": "FINDER (DBSCAN)"
                     }
 
 base = basefolder + "/Results_Fig3/"
@@ -44,7 +44,7 @@ name_4mers = "Results_4mers"
 
 def PlotHistograms(axs, df, rightCol=False):
     max_show = 10
-    for i, algo in enumerate(['FINDER_1D_loop', 'CAML_07VEJJ', 'CAML_87B144']):
+    for i, algo in enumerate(['FINDER_loop', 'CAML_07VEJJ', 'CAML_87B144']):
         ax = axs[i];
         mask2 = (df['algos'] == algo)
         sns.histplot(data=df[mask2], x='subcl', palette=my_pal, ax=axs[i], discrete=True, shrink=0.8,
