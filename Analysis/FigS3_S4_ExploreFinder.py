@@ -195,7 +195,7 @@ for dbscanType in ['DbscanLoop', 'dbscan']:
         # #plt.annotate('Selected value', (sigma_opt,FD.phasespace['similarityScore'][index_opt]))
         # trans = ax.get_xaxis_transform()
         # plt.text(sigma_opt, .5, 'Selected value', transform=trans,rotation=90)
-        ax.set_xlabel('r')
+        ax.set_xlabel('eps (nm)')
         ax.set_ylabel('minPts')
 
         # Similarity score

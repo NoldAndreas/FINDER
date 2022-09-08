@@ -168,8 +168,8 @@ my_pal = {'FINDER_loop': '#701ac0',
           }
 
 results_folder = os.path.join(basefolder, "Results_Fig5")
-case = 'protein_ttx_1hr_2'  #'neuron';  # 'neuron';#'protein_ttx_1hr_2';
-computeClustering = False
+case = 'neuron' #'neuron';  # 'neuron';#'protein_ttx_1hr_2';
+computeClustering = True
 plotFullImage = True
 plot10PtDistance = False
 plotFullImageNoNoise = True
@@ -448,7 +448,7 @@ if (plotMainAnalysis):
 
     PlotScatter(labels_FINDER, XC, markPlot, ax=axs[0, 0], ax_dist=axs[1, 0], col=my_pal['FINDER_loop'],
                 showScaleBar=True, highlights=highlights);
-    axs[0, 0].set_title('FINDER \n (minPts =' + str(np.round(sigma_selected_FINDER, 2)) +', r = ' + str(np.round(threshold_selected_FINDER, 1)) + 'nm)');
+    axs[0, 0].set_title('FINDER \n (eps =' + str(np.round(sigma_selected_FINDER, 2)) +'nm' +', minPts = ' + str(np.round(threshold_selected_FINDER, 1)) + ')');
 
     PlotScatter(labels_CAML_07VEJJ, XC, markPlot, ax=axs[0, 1], ax_dist=axs[1, 1], col=my_pal['CAML_07VEJJ'],
                 highlights=highlights);
