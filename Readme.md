@@ -21,10 +21,10 @@ FINDER will choose global clustering parameters according to the overall noise l
 
 We created two notebooks to guide you through it:
 
-* `synthetic_data.ipynb` will guide you through the creation of synthetic datasets (based on true recordings!) in which you can control the level
+* [synthetic_data.ipynb](https://github.com/NoldAndreas/FINDER/blob/master/synthetic_data.ipynb) will guide you through the creation of synthetic datasets (based on true recordings!) in which you can control the level
 of noise and arange the clusters in various forms. The dataset will be later clustered using `FINDER`.
 
-* `real_data.ipynb` applies `FINDER` to a true recording, for which the ground truth is not known.
+* [real_data.ipynb](https://github.com/NoldAndreas/FINDER/blob/master/real_data.ipynb) applies `FINDER` to a true recording, for which the ground truth is not known.
 
 
 ## Analysis of localization data
