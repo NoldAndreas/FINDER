@@ -7,7 +7,7 @@ import time
 import seaborn as sns
 import sys
 sys.path.append('../FINDER/Code/')
-from Finder_1d import Finder_1d
+from Finder import Finder
 
 
 filename = sys.argv[1]

@@ -3,7 +3,7 @@ import json
 import os.path
 import pickle
 
-from Finder_1d import Finder_1d
+from Finder import Finder
 
 from SimilarityScore import getSimilarityScore, getClusterSizesAll, getSimilarityScore_ij
 
@@ -76,7 +76,7 @@ class ClusterBasing:
 
             print("Loaded Clustering results from " + filename + '_incell.pickle');
         else:
-            FD = Finder_1d(algo=parameters['algo']);
+            FD = Finder(algo=parameters['algo']);
             labels = FD.fit(XC_incell);
 
             with open(filename + '_incell.pickle', 'wb') as handle:
@@ -93,7 +93,7 @@ class ClusterBasing:
 
             print("Loaded Clustering results from " + filename + '_outcell.pickle');
         else:
-            FD_ref = Finder_1d(algo=parameters['algo']);
+            FD_ref = Finder(algo=parameters['algo']);
             labels_ref = FD.fit(XC_incell);
 
             with open(filename + '_outcell.pickle', 'wb') as handle:

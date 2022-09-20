@@ -7,7 +7,7 @@ import time
 import seaborn as sns
 import sys
 sys.path.append('../FINDER/Code/')
-from Finder_1d import Finder_1d
+from Finder import Finder
 from GridSampler import GridSampler
 
 N_goal = 10000;
@@ -53,7 +53,7 @@ for i0 in np.arange(n):
 
         #Run
         t_start = time.time()
-        FD = Finder_1d()
+        FD = Finder()
         FD.fit(XC[mark,:])
         delta_t = time.time()-t_start
         print("Computed in "+str(np.round(delta_t,2))+" seconds for "+str(len(XC))+" points");

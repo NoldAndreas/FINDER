@@ -17,7 +17,7 @@ from sklearn.neighbors import NearestNeighbors
 # from astropy.stats import RipleysKEstimator
 # from varname import nameof
 
-from Finder_1d import Finder_1d
+from Finder import Finder
 from Clustering_CAML import Clustering_CAML
 from DbscanLoop import DbscanLoop
 
@@ -159,6 +159,7 @@ def PlotImageNoNoise(XC, labels, name):
 
 basefolder = get_datafolder()
 
+
 my_pal = {'FINDER_loop': '#701ac0',
           'CAML_07VEJJ': '#eabe8e',
           'CAML_87B144': '#d67d1d',
@@ -275,11 +276,8 @@ if (computeClustering):
     t1 = time.time();
     threshold = 10;
     dbscanType = 'DbscanLoop';
-    FD = Finder_1d(algo=dbscanType,
-                   threshold=threshold
-                   , similarity_score_computation="threshold"
-                   # , one_two_d="oneD"
-                   )  # ,points_per_dimension=20);
+    FD = Finder(threshold=threshold, algo=dbscanType,
+                similarity_score_computation="threshold")  # ,points_per_dimension=20);
     labels_FINDER = FD.fit(XC);
     print('Compute time FINDER: ' + str(time.time() - t1) + ' seconds');
     np.savetxt(results_folder + '/' + case + '_labels_FINDER.txt', labels_FINDER, fmt="%.0f",

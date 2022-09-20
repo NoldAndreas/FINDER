@@ -18,7 +18,7 @@ from DbscanLoop import DbscanLoop
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 import h5py
-from Finder_1d import Finder_1d
+from Finder import Finder
 
 from Definitions import get_datafolder
 data_folder = get_datafolder()
@@ -127,7 +127,7 @@ for case in ["neuron","ttx"]:
                 labels      = DB.labels_;
                 noClustersMatrix[i1,i2] = np.max(labels)+1;
 
-        FD      = Finder_1d(algo='DbscanLoop');
+        FD      = Finder(algo='DbscanLoop');
         labels  = FD.fit(XC);
 
     else:

@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.cluster import OPTICS
 from scipy.spatial.distance import euclidean
 from Clustering_CAML import Clustering_CAML
-from Finder_1d import Finder_1d
+from Finder import Finder
 from sklearn.cluster import DBSCAN
 import time
 import matplotlib.pyplot as plt
@@ -90,27 +90,27 @@ class Clustering:
             labels = Clustering_CAML(algo, XC, datafolder=self.basefolder)
 
         elif algo == 'FINDER_1D_loop':
-            FD = Finder_1d(algo='DbscanLoop', one_two_d="oneD")
+            FD = Finder(algo='DbscanLoop', one_two_d="oneD")
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
         elif algo == 'FINDER_1D':
-            FD = Finder_1d(algo='dbscan', one_two_d="oneD")
+            FD = Finder(algo='dbscan', one_two_d="oneD")
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
         elif algo == 'FINDER_full_loop':
-            FD = Finder_1d(algo='DbscanLoop')
+            FD = Finder(algo='DbscanLoop')
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
         elif algo == 'FINDER_full':
-            FD = Finder_1d(algo='dbscan')
+            FD = Finder(algo='dbscan')
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
         elif algo == 'FINDER_loop':
-            FD = Finder_1d(algo='DbscanLoop',similarity_score_computation="threshold")
+            FD = Finder(algo='DbscanLoop', similarity_score_computation="threshold")
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 
@@ -118,7 +118,7 @@ class Clustering:
             phase_space.to_pickle(self.basefolder + "phasespace.pkl")
 
         elif algo == 'FINDER':
-            FD = Finder_1d(algo='dbscan', similarity_score_computation="threshold")
+            FD = Finder(algo='dbscan', similarity_score_computation="threshold")
             labels = FD.fit(XC)
             result_ = FD.selected_parameters
 

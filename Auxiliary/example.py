@@ -2,7 +2,7 @@ import numpy as np
 import time
 import sys
 import os
-from Finder_1d import Finder_1d
+from Finder import Finder
 from sklearn.cluster import DBSCAN
 
 data_dir = '/home/pietro/Documents/Mainz/Project_1_Andreas/Data_AnalysisOrganized'
@@ -26,10 +26,10 @@ print("Loaded " + str(len(XC)) + " points")
 
 
 print("----------STARTING FINDER---------")
-FD = Finder_1d(similarity_score_computation="threshold")
+FD = Finder(similarity_score_computation="threshold")
 FD_labels = FD.fit(XC[:10000])
 
-FD_1 = Finder_1d(similarity_score_computation="total")
+FD_1 = Finder(similarity_score_computation="total")
 FD_1_labels = FD.fit(XC[:10000])
 
 

@@ -1,6 +1,5 @@
-from Geometry_Path import Geometry_Path
-from Geometry_Grid import Geometry_Grid
-from Geometry_Free import Geometry_Free
+from Geometry import Geometry_Path, Geometry_Grid, Geometry_Free
+
 import pickle
 from datetime import datetime
 from Clustering import Clustering

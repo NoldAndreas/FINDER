@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import scipy.spatial.distance as dist
 import seaborn as sns
 
-from Geometry_Grid import Geometry_Grid
+from Geometry import Geometry_Grid
 from Finder_1d import Finder_1d
 from Definitions import get_datafolder
 
@@ -110,9 +110,9 @@ for dbscanType in ['DbscanLoop', 'dbscan']:
         # Test: What does testset look like?
         G.PlotScatter(basefolder + name + "_Groundtruth.pdf");
         XC = G.XC;
-        FD = Finder_1d(algo=dbscanType  # ,threshold=threshold,points_per_dimension=points_per_dimension
-                       # , one_two_d="oneD"
-                       )  # ,points_per_dimension=20);
+        FD = Finder(algo=dbscanType  # ,threshold=threshold,points_per_dimension=points_per_dimension
+                    # , one_two_d="oneD"
+                    )  # ,points_per_dimension=20);
         labels = FD.fit(XC)
 
         # *********************************************

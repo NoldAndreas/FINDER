@@ -26,7 +26,7 @@ my_pal = {'CAML_07VEJJ': '#eabe8e',
           }
 
 
-def PlotScatter(labels, XC, ax=[], filename=None):
+def plotScatterUnits(labels, XC, ax=[], filename=None):
     """
     Parameters
     ----------
@@ -74,3 +74,44 @@ def PlotScatter(labels, XC, ax=[], filename=None):
 
     # if(ax==[]):
     #plt.show()
+
+def plotScatter(labels, XC, ax=None, filename=None):
+        """
+        Parameters
+        ----------
+        labels:
+            The labels resulting from a clustering.
+        XC:
+            The points associated with the labels
+        ax:
+            The axis in which to plot (if `[]` create a new figure).
+        filename:
+            the name of the file in which the result is saved. If None, plot.
+        Returns
+        -------
+        """
+        if labels is None:
+            labels = -np.ones((len(XC),))
+
+        if (ax is None):
+            fig, ax = plt.subplots()
+
+        mark = (labels == -1)
+        sns.scatterplot(x=XC[mark, 0], y=XC[mark, 1], color='grey',
+                        s=10, alpha=0.2, ax=ax)
+
+        mark = (labels >= 0)
+        sns.scatterplot(x=XC[mark, 0], y=XC[mark, 1], hue=labels[mark],
+                        palette='deep',
+                        s=10,
+                        legend=False, ax=ax)
+        ax.set_aspect('equal')
+
+        ax.set_aspect(1)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+
+        if filename is not None:
+            plt.savefig(filename)
+

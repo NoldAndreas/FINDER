@@ -7,7 +7,7 @@ import seaborn as sns
 import scipy.stats as stats
 
 import matplotlib.pyplot as plt
-from Finder_1d import Finder_1d
+from Finder import Finder
 
 from SimilarityScore import getSimilarityScore, getClusterSizesAll, getSimilarityScore_ij
 
@@ -55,8 +55,7 @@ class ClustersInOutCell:
 
             print("Loaded Clustering results from " + filename + '_incell.pickle');
         else:
-            FD = Finder_1d(algo=parameters['algo'], \
-                           points_per_dimension=parameters['points_per_dimension']);
+            FD = Finder(points_per_dimension=parameters['points_per_dimension'], algo=parameters['algo']);
             labels = FD.fit(self.XC_incell, skipSimilarityScore=skipSimilarityScore);
 
             with open(filename + '_incell.pickle', 'wb') as handle:
@@ -73,8 +72,7 @@ class ClustersInOutCell:
 
             print("Loaded Clustering results from " + filename + '_outcell.pickle');
         else:
-            FD_ref = Finder_1d(algo=parameters['algo'], \
-                               points_per_dimension=parameters['points_per_dimension']);
+            FD_ref = Finder(points_per_dimension=parameters['points_per_dimension'], algo=parameters['algo']);
             labels_ref = FD_ref.fit(self.XC_outcell, self.XC_incell, skipSimilarityScore=skipSimilarityScore);
 
             with open(filename + '_outcell.pickle', 'wb') as handle:

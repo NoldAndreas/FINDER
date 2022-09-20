@@ -10,7 +10,7 @@ import sys
 sys.path.append("Modules/")
 
 #from Geometry_Path import Geometry_Path
-from Geometry_Grid import Geometry_Grid
+from Geometry import Geometry_Path, Geometry_Grid, Geometry_Free
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns

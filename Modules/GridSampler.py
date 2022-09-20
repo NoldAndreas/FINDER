@@ -5,7 +5,7 @@ import time
 import pandas as pd
 from   sklearn.cluster import DBSCAN
 import scipy.stats
-from Finder_1d import Finder_1d
+from Finder import Finder
 
 
 #TODO: this has no use in the project, it's just imported.
@@ -115,7 +115,7 @@ class GridSampler:
             DB            = DBSCAN(eps=eps,min_samples=min_samples).fit(XC);
             labels        = DB.labels_;
         elif(algo=='FINDER'):
-            FD     = Finder_1d();
+            FD     = Finder();
             labels = FD.fit(XC);            
     
         return self.__getClusterDistribution(labels);

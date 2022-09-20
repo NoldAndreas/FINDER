@@ -4,7 +4,7 @@
 from Definitions import data_folder
 import time
 import numpy as np
-from Finder_1d import Finder_1d
+from Finder import Finder
 import matplotlib.pyplot as plt
 import scipy.spatial.distance as dist
 import seaborn as sns
@@ -151,7 +151,7 @@ elif(False):
 elif(True):
     all_labels    = [];
     for threshold in thresholds:
-        FD             = Finder_1d(algo="DbscanLoop",threshold=threshold);
+        FD             = Finder(threshold=threshold, algo="DbscanLoop");
         labels  = FD.fit(XC);    
         
         with open(outputfolder+'temp.pickle','ab') as handle:
