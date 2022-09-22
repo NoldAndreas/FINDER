@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import glob
-from PlotScatter import PlotScatter
+from PlotScatter import plotScatter
 # import matplotlib.pyplot as plt
 # import seaborn as sns
 import numpy as np
@@ -111,7 +111,7 @@ def ComputeSeries(basefolder, input_filename, name_):
 
                 # Test: What does testset look like?
             if (plot_option):
-                PlotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
+                plotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
 
             data_subcl = {'subcl': [], 'algos': []}
 

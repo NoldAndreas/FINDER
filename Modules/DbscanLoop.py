@@ -11,7 +11,7 @@ class DbscanLoop:
         The implementation of the *noise free* implementation of DBscan, described in the paper.
         """
         self.eps = eps
-        self.min_samples = min_samples
+        self.min_samples = int(min_samples)
 
     def fit(self, XS):
         XS_full = XS

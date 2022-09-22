@@ -26,7 +26,7 @@ my_pal = {'CAML_07VEJJ': '#eabe8e',
           }
 
 
-def plotScatterUnits(labels, XC, ax=[], filename=None):
+def PlotScatter(labels, XC, ax=[], filename=None):
     """
     Parameters
     ----------

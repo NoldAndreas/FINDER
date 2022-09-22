@@ -218,6 +218,8 @@ class Finder:
         The labels
 
         """
+        threshold = int(threshold)
+
         if ((self.algo == "dbscan")):
             DB = DBSCAN(eps=sigma, min_samples=threshold).fit(XC)
             labels_ = DB.labels_
@@ -227,7 +229,7 @@ class Finder:
             labels_ = DBL.labels_
 
         else:
-            self.__print("ALGORITHM NOT RECOGNIZED !!");
+            print("ALGORITHM NOT RECOGNIZED !!");
 
         return labels_
 
