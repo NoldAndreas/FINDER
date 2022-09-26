@@ -3,12 +3,34 @@
 -------------------------------
 
 
-## USING FINDER
+# Installing required packages
+
+To install the dependencies, we recommend to use [anaconda](https://www.anaconda.com/products/distribution).
+Once you have `anaconda`, open the shell and create a new environment (we will call it `finder_env`) by typing:
+
+```shell
+conda create --name finder_env python=3.8
+```
+now navigate to `FINDER` folder in your computer and type
+
+```shell
+conda install -y --name finder_env -c conda-forge --file requirements.txt
+```
+This will install all the required packages.
+
+To activate the environment you can simply type:
+
+```shell
+conda activate finder_env
+```
+and then you can start using `FINDER`.
+
+## Using FINDER
 
 Using `FINDER` is really simple.
 To run the `FINDER` algorithm on your own localization data, add 
 
-```
+```python
 from Finder import Finder
 
 FD      = Finder()
@@ -27,17 +49,22 @@ of noise and arange the clusters in various forms. The dataset will be later clu
 * [real_data.ipynb](https://github.com/NoldAndreas/FINDER/blob/master/real_data.ipynb) applies `FINDER` to a true recording, for which the ground truth is not known.
 
 
-## Analysis of localization data
+## Using the FINDER app
 
-1. We first segment the image obtained from the localizations into two a low-density region (outcell) and a high-density region (incell). We then select part of the image and perform cluster analysis with DBSCAN or DBSCANLoop for a full range of clustering parameters. For a given dataset, localizations are read from the file ```XC.hdf5``` located in the Input folder. (e.g. ```TTX_24hr_2/Input/XC.hdf5```. Results are saved in files ```Output/X_incell.txt``` and ```Output/XC_outcell.hdf5.```
-	- To do this, run ```Code/dash-split-cell/app.py```, select parameters and save the split.
-	- Alternatively, run ```Analysis/analysis_1_DefineInOutCell.py``` with the respective subfolder of ```Data_AnalysisOrganized```, and with adapted parameters if necessary. Parameters are loaded from the file ```Input/parameters_splitInOutCell.json```.
-	
-2. To define a ROI and run the clustering analysis, run ```Analysis/analysis_2_Clustering.py```
+The `FINDER` app allows you to apply finder to your data directly. 
+Make sure you have installed all the required packages (as explained above, see _Installing required packages_).
+To use the app, simply navigate with your shell to the directory `./app` inside the `./Finder` folder.
 
-3. To analyze the clustering results, run either ```Dash/dash-show-clustering``` or ```Analysis/analysis_3_plotting.ipynb```.
+Then type on the terminal:
 
-4. An alternative, exploratory analysis is given in ```Analysis/FigY1_Exploration_SingleDataset.ipynb```, where a square window is analyzed. This is not optimized to work with the folders in ```Data_AnalysisOrganized```, and runs with a precomputed example in ```Data_Other/MikeData/Analysis_dataWindow_1```.
+```shell
+python3 app.py
+```
+The app should launch automatically, but if it does not simply click on the link displayed on the terminal and open it.
+Using the app, you can browse your computer for the data you want to cluster and select the parameter you want to use. 
+`FINDER` will be applied to your data and the labels will be returned. For the app to work properly, your data must be saved in a text file.
+
+-----------------------------------------
 
 ## How to file to reproduce existing figures
 
@@ -57,6 +84,17 @@ Williamson et al. "Machine learning for cluster analysis of localization
 microscopy data", Nat. Comm. (2020) .
 ****************************************************************************************************
 
+## Analysis of localization data
+
+1. We first segment the image obtained from the localizations into two a low-density region (outcell) and a high-density region (incell). We then select part of the image and perform cluster analysis with DBSCAN or DBSCANLoop for a full range of clustering parameters. For a given dataset, localizations are read from the file ```XC.hdf5``` located in the Input folder. (e.g. ```TTX_24hr_2/Input/XC.hdf5```. Results are saved in files ```Output/X_incell.txt``` and ```Output/XC_outcell.hdf5.```
+	- To do this, run ```Code/dash-split-cell/app.py```, select parameters and save the split.
+	- Alternatively, run ```Analysis/analysis_1_DefineInOutCell.py``` with the respective subfolder of ```Data_AnalysisOrganized```, and with adapted parameters if necessary. Parameters are loaded from the file ```Input/parameters_splitInOutCell.json```.
+	
+2. To define a ROI and run the clustering analysis, run ```Analysis/analysis_2_Clustering.py```
+
+3. To analyze the clustering results, run either ```Dash/dash-show-clustering``` or ```Analysis/analysis_3_plotting.ipynb```.
+
+4. An alternative, exploratory analysis is given in ```Analysis/FigY1_Exploration_SingleDataset.ipynb```, where a square window is analyzed. This is not optimized to work with the folders in ```Data_AnalysisOrganized```, and runs with a precomputed example in ```Data_Other/MikeData/Analysis_dataWindow_1```.
 
 
 
