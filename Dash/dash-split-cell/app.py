@@ -3,10 +3,10 @@ import importlib
 import os
 
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 import matplotlib as matplotlib
 from matplotlib.pyplot import figure, text
+
 import numpy as np
 from dash.dependencies import Input, Output, State
 from sklearn.model_selection import train_test_split

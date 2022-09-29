@@ -158,44 +158,6 @@ class Finder:
 
         return labels
 
-    def GetSimilarity(self, labels_1, labels_2):
-        # todo: there is no usage of this function
-        sim_ = self.__getSimilarity(labels_1, labels_2)
-        if (sim_):
-            print("similar clusters")
-        else:
-            print("not similar clusters")
-        return sim_
-
-    def getSimilarityScoreDistribution(self, XC, i):
-
-        # todo: this is not used anywhere
-
-        PS = self.phasespace
-        print(PS.loc[i, :]);
-        labels_1 = PS.loc[i, "labels"]
-        centers, radii = self.__computeCenters_Radii(XC, PS)
-
-        n1 = np.max(labels_1) + 1
-        similarityScores = np.zeros((n1,), dtype=int)
-
-        for j, ps in PS.iterrows():
-            labels_2 = ps["labels"]
-
-            n1 = np.max(labels_1) + 1
-            n2 = np.max(labels_2) + 1
-
-            radii_1 = radii[i]
-            radii_2 = radii[j]
-            centers_1 = centers[i]
-            centers_2 = centers[j]
-
-            for i1 in np.arange(n1):
-                for i2 in np.arange(n2):
-                    similarityScores[i1] += self.__getSimilarityClusters_withPrecheck(labels_1, labels_2, i1, i2,
-                                                                                      centers_1, centers_2, radii_1,
-                                                                                      radii_2)
-        return similarityScores
 
     def ComputeClusters(self, sigma, threshold, XC):
         """
@@ -374,8 +336,6 @@ class Finder:
         -------
 
         """
-        # TO CHANGE!!!
-        # todo: change, but what?
         k = self.minmax_threshold[0] + 1  # k         = self.threshold+1;
         neigh = NearestNeighbors(n_neighbors=k, n_jobs=-1)
         neigh.fit(XC)

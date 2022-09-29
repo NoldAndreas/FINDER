@@ -43,7 +43,8 @@ def ComputeSeries(basefolder, input_filename, name_):
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"
-    basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  # todo: use path join
+    #basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  #
+    basefolder_results =os.path.join(basefolder,"Results_" + date_time + "_" + name_)
 
     # create `basefolder` if it does not exist
     if os.path.exists(basefolder):
@@ -58,7 +59,7 @@ def ComputeSeries(basefolder, input_filename, name_):
         os.makedirs(basefolder_results)
 
     # store the parameter
-    with open(basefolder_results + filename_json, 'w') as fp:
+    with open(os.path.join(basefolder_results,filename_json), 'w') as fp:
         json.dump(params, fp, indent=5)
 
     data_eval = {params['var_1_name']: [],
@@ -178,7 +179,8 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"
-    basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  # todo: use path join
+    #basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  #
+    basefolder_results = os.path.join(basefolder, "Results_" + date_time + "_" + name_)
 
     # create `basefolder` if it does not exist
     if os.path.exists(basefolder):
@@ -246,7 +248,7 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
 
                 # Test: What does testset look like?
             if (plot_option):
-                PlotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
+                plotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
 
             data_subcl = {'subcl': [], 'algos': []}
 
@@ -313,6 +315,6 @@ if __name__ == '__main__':
     if os.path.isfile(input_filename):
         pass
     else:
-        input_filename = basefolder + 'Input/' + input_filename
+        input_filename = os.path.join(basefolder,'Input', input_filename)
 
     ComputeSeries(basefolder, input_filename, name_)

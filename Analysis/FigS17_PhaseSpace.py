@@ -21,9 +21,9 @@ import h5py
 from Finder import Finder
 
 from Definitions import get_datafolder
-data_folder = get_datafolder()
-base_folder = get_datafolder("")
 
+base_folder = os.path.dirname(os.getcwd())
+data_folder = os.path.join(os.path.dirname(os.getcwd()), 'data_sources')
 
 sys.path.append("Modules/")
 #style.use('ClusterStyle')
@@ -132,11 +132,10 @@ for case in ["neuron","ttx"]:
 
     else:
         if case == "neuron":
-
             pkl_path = os.path.join(data_folder,"phase_spaces","neuron_phasespace.pkl")
             PS = pd.read_pickle(pkl_path)
-            # TODO: find the path
-            neuron_path = "/home/pietro/Documents/Mainz/Project_1_Andreas/Data_Figures/TemplateClusters/NeuronData/dendrite_example_Cell1_GluA2_40I_ROI1_1_MMStack_Pos0.ome_locs_render_driftCorr_filter_render_pix.6fr20_picked2_picked3.txt"
+            neuron_name = "dendrite_example_Cell1_GluA2_40I_ROI1_1_MMStack_Pos0.ome_locs_render_driftCorr_filter_render_pix.6fr20_picked2_picked3.txt"
+            neuron_path = os.path.join(data_folder,"TemplateClusters","NeuronData", neuron_name)
             XC = np.loadtxt(neuron_path)
 
             no_clusters = []
@@ -150,9 +149,16 @@ for case in ["neuron","ttx"]:
 
         if case == "ttx":
             pkl_path = os.path.join(data_folder,"phase_spaces","protein_ttx_1hr_2_phasespace.pkl")
+            if not os.path.isfile(pkl_path):
+                print("The file'protein_ttx_1hr_2_phasespace.pkl' was not uploaded in this directory because it is too large.")
+                print("Please contact us if you need to use it")
+
             PS = pd.read_pickle(pkl_path)
-            #TODO: check the path
-            filename = '/home/pietro/Documents/Mainz/Project_1_Andreas/Data_Figures/TemplateClusters/ProteinData_ttx_1hr_2/AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5'
+            ttx_name = "AHA_2_MMStack_Pos0.ome_locs_render_driftcor_filter_render_pix0.02X6f20.hdf5"
+            filename = os.path.join(data_folder,"TemplateClusters","ProteinData_ttx_1hr_2", ttx_name)
+            if not os.path.isfile(filename):
+                print("The file for 'ProteinData_ttx_1hr_2' was not uploaded in this directory because it is too large.")
+                print("Please contact us if you need to use it")
             f = h5py.File(filename, 'r')
             dset = f['locs'];
             XC = np.stack((dset["x"], dset["y"])).T
@@ -172,8 +178,8 @@ for case in ["neuron","ttx"]:
     axs.set_xlabel('Distance r (nm)');
     axs.set_ylabel('minPts');
     
-    plt.savefig(data_folder + "/FigS17_18_a_" + case + "_Phasediagram.pdf", bbox_inches="tight");
-    print("File saved in : " + data_folder + "/FigS17_18_a_" + case + "_Phasediagram.pdf");
+    plt.savefig(data_folder + "/Results/FigS17_18_a_" + case + "_Phasediagram.pdf", bbox_inches="tight");
+    print("File saved in : " + data_folder + "/Results/FigS17_18_a_" + case + "_Phasediagram.pdf");
     
     #*********************
     # Plot examples
@@ -204,5 +210,5 @@ for case in ["neuron","ttx"]:
             ax.set_yticks([]);
             ax.axis('off');
     
-    plt.savefig(data_folder + "FigS17_18_b_" + case + "_ClusteringResults.pdf", bbox_inches="tight");
-    print("File saved in : " + data_folder + "FigS17_18_a_" + case + "_Phasediagram.pdf");
+    plt.savefig(data_folder + "/FigS17_18_b_" + case + "_ClusteringResults.pdf", bbox_inches="tight");
+    print("File saved in : " + data_folder + "/FigS17_18_a_" + case + "_Phasediagram.pdf");
