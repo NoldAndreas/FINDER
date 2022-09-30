@@ -43,14 +43,19 @@ def ComputeSeries(basefolder, input_filename, name_):
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"
-    #basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  #
-    basefolder_results =os.path.join(basefolder,"Results_" + date_time + "_" + name_)
+    resultfolder = os.path.join(basefolder,"Results")
+    basefolder_results =os.path.join(resultfolder,"Results_" + date_time + "_" + name_)
 
     # create `basefolder` if it does not exist
     if os.path.exists(basefolder):
         pass
     else:
         os.makedirs(basefolder)
+
+    if os.path.exists(resultfolder):
+        pass
+    else:
+        os.makedirs(resultfolder)
 
     # create the `results` folder if it does not exist
     if os.path.exists(basefolder_results):
@@ -74,7 +79,7 @@ def ComputeSeries(basefolder, input_filename, name_):
     var_2_name = params['var_2_name']
 
     def GetBaseName():
-        return basefolder_results + filename_base + "_" + var_1_name + "_" + str(params[var_1_name]) + \
+        return basefolder_results + "/"+ filename_base + "_" + var_1_name + "_" + str(params[var_1_name]) + \
                "_" + var_2_name + "_" + str(params[var_2_name])
 
     for var_1 in params['var_1_values']:
@@ -128,14 +133,14 @@ def ComputeSeries(basefolder, input_filename, name_):
                 result_ = CL.fit(algo, params['params_algos'])
                 CL.evaluate()
 
-                np.savetxt(basefolder_results + filename_base + "labels_" + algo + ".txt", CL.labels, fmt="%.0f")
+                np.savetxt(basefolder_results +"/"+ filename_base + "labels_" + algo + ".txt", CL.labels, fmt="%.0f")
 
                 # Step 4a: Save figure
                 if (plot_option):
                     CL.plotScatter(GetBaseName() + "_algo_" + algo + ".pdf")
 
                 # Step 4 b: Save result in pickle
-                pickle_out = open(basefolder_results + filename_pickle, "ab")
+                pickle_out = open(basefolder_results +"/"+ filename_pickle, "ab")
                 pickle.dump(CL, pickle_out)
                 pickle_out.close()
 
@@ -152,7 +157,7 @@ def ComputeSeries(basefolder, input_filename, name_):
                 data_eval["results"].append(result_)
 
                 df = pd.DataFrame(data=data_eval)
-                df.to_csv(basefolder_results + filename_dataframe)
+                df.to_csv(basefolder_results +"/"+ filename_dataframe)
 
                 data_subcl['subcl'] += list(CL.number_of_subclusters)
                 data_subcl['algos'] += [algo] * len(CL.number_of_subclusters)
@@ -160,7 +165,7 @@ def ComputeSeries(basefolder, input_filename, name_):
 
             df_subcl = pd.DataFrame(data=data_subcl)
             df_subcl.to_csv(
-                basefolder_results + filename_base + "_subclusters" + str(var_1) + "_" + str(var_2) + ".txt")
+                basefolder_results +"/"+ filename_base + "_subclusters" + str(var_1) + "_" + str(var_2) + ".txt")
 
 
 def ComputePhaseSpace(basefolder, input_filename, name_):
@@ -175,7 +180,7 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
     now = datetime.now()
     date_time = now.strftime("%Y_%m_%d_%H_%M_%S")
 
-    filename_base = "Results_" + name_
+    filename_base = "\Results_" + name_
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"

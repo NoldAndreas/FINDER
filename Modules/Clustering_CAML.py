@@ -7,13 +7,23 @@ import os, shutil
 
 def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):    
 
-    print(os.getcwd())
-    print(datafolder);
-    datafolder = datafolder + '/CAML/';
+    global input_PrepJSON
+    global output_folder
+    global s1_prep_outputpath
+    global model_fname
+    global files
+
+    print("Using CAML")
+    #datafolder = datafolder + '/CAML/'
+    datafolder = os.path.join(datafolder, "CAML")+"/"
     #*********************
-    #Delete all content in folder    
-    for filename in os.listdir(datafolder + "Output/"):
-        file_path = os.path.join(datafolder + "Output/", filename)
+    #Delete all content in folder
+    output_folder = os.path.join(datafolder, "Output")
+
+    original_cwd = os.getcwd()
+
+    for filename in os.listdir(output_folder):
+        file_path = os.path.join(output_folder, filename)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)
@@ -21,20 +31,18 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
                 shutil.rmtree(file_path)
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
-    
-    
-    global input_PrepJSON
-    global output_folder;
-    global s1_prep_outputpath
-    global model_fname
-    global files
-    
-    output_folder = datafolder + "Output/";
-    np.savetxt(datafolder + "Output/" + file_txt,XC,delimiter=' \t',fmt='%4.4f',header="x \t y",comments='');
+
+    f_name = os.path.join(output_folder, file_txt)
+    np.savetxt(f_name,XC,delimiter=' \t',fmt='%4.4f',header="x \t y",comments='');
 
     #Get current working directory
+    if os.path.basename(os.getcwd()) == "Modules":
+        os.chdir(os.path.dirname(os.getcwd()))
+
     cwd = os.getcwd()
-    
+
+
+
     if('87B144' in algo):        
         model_ = '87B144';
     elif('07VEJJ' in algo):        
@@ -86,11 +94,16 @@ def Clustering_CAML(algo,XC,file_txt='default.tsv',datafolder=[]):
     else:
         labels_  = -np.ones((len(XC),),dtype='int16');
 
+    #
+    # #Change back to original working directory
+    # if os.getcwd() != cwd:
+    #     os.chdir(cwd)
+    #     print('Changed working directory back to ' + cwd)
+    #
+    if os.getcwd() != original_cwd:
+        os.chdir(original_cwd)
+        print('Changed working directory back to ' + original_cwd)
 
-    #Change back to original working directory
-    if os.getcwd() != cwd:
-        os.chdir(cwd)
-        print('Changed working directory back to ' + cwd)
     
     return labels_
 

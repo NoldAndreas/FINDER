@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-# sys.path.append("Modules/")
+
+sys.path.append("Modules/")
 
 import os
 import time
@@ -158,6 +159,9 @@ def PlotImageNoNoise(XC, labels, name):
 
 
 basefolder = get_datafolder()
+
+# base_folder_2 = os.path.dirname(os.getcwd())
+# data_folder = os.path.join(os.path.dirname(os.getcwd()), 'data_sources')
 
 
 my_pal = {'FINDER_loop': '#701ac0',

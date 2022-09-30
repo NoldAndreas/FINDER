@@ -1,0 +1,10 @@
+[workspace]
+restore_data_on_startup = True
+save_data_on_exit = True
+save_history = True
+save_non_project_files = False
+
+[main]
+version = 0.2.0
+recent_files = ['AnalyseRibosomeData_Prepare_CAML.py', 'AnalyseRibosomeData_TwoStep.py', '1.0_Data_Preparation.py', '4.0_Evaluation_With_ClusterClub.py', '../../../../../opt/anaconda3/lib/python3.8/site-packages/numpy/lib/npyio.py', '../../../../../opt/anaconda3/lib/python3.8/json/decoder.py', 'FuncEtc.py']
+

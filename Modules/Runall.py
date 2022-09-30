@@ -32,8 +32,5 @@ for i,fn in enumerate(filenamesList):
 
     ComputeSeries(basefolder, basefolder+'Input/'+fn_, str(i))
 
-    #log = open(basefolder+'Output/'+fn_[:-5]+'.txt', 'a')    
-    #command1 = subprocess.check_call(['python','Modules/ComputeSeries.py',basefolder,fn,str(i)],stdout=log, stderr=log)
-    #command1 = subprocess.check_call(f"python ComputeSeries.py {basefolder} {fn} {str(i)}",stdout=log, stderr=log)
-    #command1 = subprocess.check_call(['./Modules/run.sh',basefolder,fn,str(i)],stdout=log, stderr=log)
+
     
