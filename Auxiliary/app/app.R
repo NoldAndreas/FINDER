@@ -1,7 +1,7 @@
 library(shiny)
 library(maps)
 library(mapproj)
-library("plotly")   
+library("plotly")
 library(pivottabler)
 library(reshape2)
 
@@ -40,30 +40,30 @@ data$sigma <- data$sigma %>% round(digits=3)
 
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
-  
+
   # App title ----
   titlePanel("See clustering results"),
-  
+
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
-    
+
     # Sidebar panel for inputs ----
     sidebarPanel(
-      
-      helpText("Seeing clustering result of", 
+
+      helpText("Seeing clustering result of",
                "some localization data"),
       # Input: Slider for the number of bins ----
-      selectInput("select", h3("Choose a variable to display"), 
+      selectInput("select", h3("Choose a variable to display"),
                   choices = c("noise","signal"), selected = "noise"),
-      
+
       sliderInput("sliderThreshold", h3("Threshold:"),
                   min = min(data$threshold), max = max(data$threshold), value = median(data$threshold)),
-      
+
       sliderInput("sliderSigma", h3("Sigma:"),
                   min = round(min(data$sigma),digits=2), max = round(max(data$sigma),digits=2), value = median(round(data$sigma,digits = 2)))
-      
+
     ),
-    
+
     # Main panel for displaying outputs ----
     mainPanel(
       textOutput("selected_var"),
@@ -80,7 +80,7 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output,session) {
-  
+
   #******************************************************************************
   #Get index that gets closest to selected sigma and threshold
   data_sel <- reactive({
@@ -88,7 +88,7 @@ server <- function(input, output,session) {
       dataP <- data %>% filter(type=="signal");
     }
     else{
-      dataP <- data %>% filter(type=="noise")  
+      dataP <- data %>% filter(type=="noise")
     }
     return(dataP);
   });
@@ -97,13 +97,13 @@ server <- function(input, output,session) {
     data_clusterSizes %>% filter(index==idx()-1)
   })
   #******************************************************************************
-  
+
   output$selected_var <- renderText({paste("You have selected ",input$select)})
-  
+
   output$selectedClustering <- renderPrint({
     return(paste("Selected clustering: Threshold = ",data_sel()$threshold[idx()]," , sigma = ",round(data_sel()$sigma[idx()],digits=2),sep=''));
     })
-  
+
   #******************************************************************************
   # Plot heatmap
   #******************************************************************************
@@ -112,7 +112,7 @@ server <- function(input, output,session) {
       plot_ly(x=colnames(data_table), y=rownames(data_table), z = data_table, type = "heatmap")
   })
   #******************************************************************************
-  
+
   #******************************************************************************
   # Plot points
   #******************************************************************************
@@ -125,7 +125,7 @@ server <- function(input, output,session) {
   output$clusterSizes <- renderPlotly({
     fig <- plot_ly(x=data_clusterSizes_sel()$size,type = "histogram",bingroup=10)
   })
-  
+
   output$other <- renderText({length(data_clusterSizes_sel()$size)});
 }
 
