@@ -1,0 +1,44 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        require_serial: true
+        args:
+        - --max-line-length=79
+        - --good-names=_,d,e,f,i,j,k,m,n,p,q,r,s,v,x,y,z,X,db,df,dm,ds,ex,fh,pk,tb,ts
+        - --fail-under=4
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.1.0
+  hooks:
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+  - id: check-case-conflict
+  - id: check-merge-conflict
+- repo: https://github.com/PyCQA/isort
+  rev: 5.10.1
+  hooks:
+  - id: isort
+    args:
+      - --only-modified
+      - --profile=black
+      - --line-length=79
+- repo: https://github.com/psf/black
+  rev: 22.6.0
+  hooks:
+  - id: black
+    args:
+      - --line-length=79
+    language_version: python3.7
+- repo: https://github.com/pycqa/flake8
+  rev: 4.0.1
+  hooks:
+  - id: flake8
+    types: [file, python]
+    args:
+      - --max-line-length=79
+      - --extend-ignore=E203,E402

@@ -8,15 +8,13 @@ Created on Wed Jun 30 19:18:32 2021
 import numpy as np
 import pandas as pd
 
-'''
+"""
 JUST SOME UTILS
-'''
-
-
+"""
 
 
 def GetLineOfOptima(df, x_selector, y_selector, includeAllColumns=False):
-    '''
+    """
     For each unique value in `x_selector`, find the entry which maximizes 'y_selector" and return a pd.DataFrame
     containing the indexes with the best entry, the unique 'x_selector' values and the associated 'y_selector' values.
 
@@ -39,7 +37,7 @@ def GetLineOfOptima(df, x_selector, y_selector, includeAllColumns=False):
     df_opt = pd.DataFrame
         a DataFrame with columns ['idx', 'x_selector', 'y_selector'].
         If includeAllColumns== True, contains all the columns of `df` instead.
-    '''
+    """
 
     # unique entries of 'x_selector'
     x_sel_sort = np.sort(np.unique(df[x_selector]))
@@ -47,16 +45,16 @@ def GetLineOfOptima(df, x_selector, y_selector, includeAllColumns=False):
 
     # for each `x_sel`, find the index leading to the maximum `y_selector` value.
     for x_sel in x_sel_sort:
-        mark_ = (df[x_selector] == x_sel)
+        mark_ = df[x_selector] == x_sel
         if np.sum(mark_) == 0:
             continue
         else:
             idxs.append((df.loc[mark_, y_selector]).idxmax())
 
     df_opt = pd.DataFrame()
-    df_opt['idx'] = idxs
+    df_opt["idx"] = idxs
 
-    if (includeAllColumns):
+    if includeAllColumns:
         cols = df.columns
     else:
         cols = [x_selector, y_selector]
@@ -69,7 +67,7 @@ def GetLineOfOptima(df, x_selector, y_selector, includeAllColumns=False):
 
 
 def GetClusterDistribution(labels):
-    '''
+    """
     Return an array containing the number of points with a given label.
 
     Position `i` in the array account for label 'i`. Its value will be the number of elements with label `i`.
@@ -82,10 +80,10 @@ def GetClusterDistribution(labels):
     Returns
     -------
 
-    '''
+    """
     cl_sizes = []
     for c in np.unique(labels):
-        if (c == -1):
+        if c == -1:
             continue
         cl_sizes.append(np.sum(labels == c))
     return cl_sizes

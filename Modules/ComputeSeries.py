@@ -1,18 +1,18 @@
-from Geometry import Geometry_Path, Geometry_Grid, Geometry_Free
-
-import pickle
-from datetime import datetime
-from Clustering import Clustering
-import pandas as pd
+import glob
 import json
 import os
+import pickle
 import sys
-import glob
-from PlotScatter import plotScatter
+from datetime import datetime
+
 # import matplotlib.pyplot as plt
 # import seaborn as sns
 import numpy as np
+import pandas as pd
+from Clustering import Clustering
 from Definitions import data_folder
+from Geometry import Geometry_Free, Geometry_Grid, Geometry_Path
+from PlotScatter import plotScatter
 
 
 def ComputeSeries(basefolder, input_filename, name_):
@@ -29,8 +29,8 @@ def ComputeSeries(basefolder, input_filename, name_):
     """
 
     # load the parameters
-    print('Loading parameters from ' + input_filename + ' ...')
-    with open(input_filename, 'r') as fp:
+    print("Loading parameters from " + input_filename + " ...")
+    with open(input_filename, "r") as fp:
         params = json.load(fp)
 
     plot_option = True
@@ -43,8 +43,10 @@ def ComputeSeries(basefolder, input_filename, name_):
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"
-    resultfolder = os.path.join(basefolder,"Results")
-    basefolder_results =os.path.join(resultfolder,"Results_" + date_time + "_" + name_)
+    resultfolder = os.path.join(basefolder, "Results")
+    basefolder_results = os.path.join(
+        resultfolder, "Results_" + date_time + "_" + name_
+    )
 
     # create `basefolder` if it does not exist
     if os.path.exists(basefolder):
@@ -64,83 +66,120 @@ def ComputeSeries(basefolder, input_filename, name_):
         os.makedirs(basefolder_results)
 
     # store the parameter
-    with open(os.path.join(basefolder_results,filename_json), 'w') as fp:
+    with open(os.path.join(basefolder_results, filename_json), "w") as fp:
         json.dump(params, fp, indent=5)
 
-    data_eval = {params['var_1_name']: [],
-                 params['var_2_name']: [],
-                 'algo': [],
-                 'true_positives_ratio': [],
-                 'false_positives_ratio': [],
-                 'compute_time': [],
-                 'results': []}
+    data_eval = {
+        params["var_1_name"]: [],
+        params["var_2_name"]: [],
+        "algo": [],
+        "true_positives_ratio": [],
+        "false_positives_ratio": [],
+        "compute_time": [],
+        "results": [],
+    }
 
-    var_1_name = params['var_1_name']
-    var_2_name = params['var_2_name']
+    var_1_name = params["var_1_name"]
+    var_2_name = params["var_2_name"]
 
     def GetBaseName():
-        return basefolder_results + "/"+ filename_base + "_" + var_1_name + "_" + str(params[var_1_name]) + \
-               "_" + var_2_name + "_" + str(params[var_2_name])
+        return (
+            basefolder_results
+            + "/"
+            + filename_base
+            + "_"
+            + var_1_name
+            + "_"
+            + str(params[var_1_name])
+            + "_"
+            + var_2_name
+            + "_"
+            + str(params[var_2_name])
+        )
 
-    for var_1 in params['var_1_values']:
+    for var_1 in params["var_1_values"]:
         params[var_1_name] = var_1
 
-        for var_2 in params['var_2_values']:
+        for var_2 in params["var_2_values"]:
             params[var_2_name] = var_2
-            print("Geometry is ", params['geometry'])
+            print("Geometry is ", params["geometry"])
             # GEOMETRY == GRID
-            if (params['geometry'] == 'grid'):
-                G = Geometry_Grid(basefolder, params['unit_type'],
-                                  n_side=params['n_side'],
-                                  Delta_ratio=params['Delta_ratio'],
-                                  noise_ratio=params['noise_ratio'])
-                G.GeneratePoints(params['seed'])
+            if params["geometry"] == "grid":
+                G = Geometry_Grid(
+                    basefolder,
+                    params["unit_type"],
+                    n_side=params["n_side"],
+                    Delta_ratio=params["Delta_ratio"],
+                    noise_ratio=params["noise_ratio"],
+                )
+                G.GeneratePoints(params["seed"])
 
             # GEOMETRY == PATH
 
-            elif (params['geometry'] == 'path'):
-                G = Geometry_Path(basefolder, params['unit_type'])
-                if ('noise_ratio' in params):
-                    n_noise = params['noise_ratio'] * G.GetTypical_Number_of_points_templateClusters() * params[
-                        'N_clusters']
+            elif params["geometry"] == "path":
+                G = Geometry_Path(basefolder, params["unit_type"])
+                if "noise_ratio" in params:
+                    n_noise = (
+                        params["noise_ratio"]
+                        * G.GetTypical_Number_of_points_templateClusters()
+                        * params["N_clusters"]
+                    )
                     n_noise = np.int(n_noise)
                 else:
-                    n_noise = params['noise_ratio_per_cluster'] * params['N_clusters']
-                G.GeneratePoints(params['N_clusters'],
-                                 n_noise,
-                                 params['seed'])
+                    n_noise = (
+                        params["noise_ratio_per_cluster"]
+                        * params["N_clusters"]
+                    )
+                G.GeneratePoints(params["N_clusters"], n_noise, params["seed"])
 
             # GEOMETRY == FREE
-            elif (params['geometry'] == 'free'):
-                G = Geometry_Free(basefolder, params['unit_type'], noise_ratio=params['noise_ratio'])
-                G.GeneratePoints(params['seed'])
+            elif params["geometry"] == "free":
+                G = Geometry_Free(
+                    basefolder,
+                    params["unit_type"],
+                    noise_ratio=params["noise_ratio"],
+                )
+                G.GeneratePoints(params["seed"])
 
                 # Test: What does testset look like?
-            if (plot_option):
-                plotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
+            if plot_option:
+                plotScatter(
+                    G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf"
+                )
 
-            data_subcl = {'subcl': [], 'algos': []}
+            data_subcl = {"subcl": [], "algos": []}
 
-            for algo in params['algos']:
+            for algo in params["algos"]:
                 # Step 2: Set up Object
                 # print(basefolder)
                 print()
-                print( "USING ", algo)
-                print( )
+                print("USING ", algo)
+                print()
                 CL = Clustering(G, basefolder)
 
                 # Step 3: Compute clustering
-                result_ = CL.fit(algo, params['params_algos'])
+                result_ = CL.fit(algo, params["params_algos"])
                 CL.evaluate()
 
-                np.savetxt(basefolder_results +"/"+ filename_base + "labels_" + algo + ".txt", CL.labels, fmt="%.0f")
+                np.savetxt(
+                    basefolder_results
+                    + "/"
+                    + filename_base
+                    + "labels_"
+                    + algo
+                    + ".txt",
+                    CL.labels,
+                    fmt="%.0f",
+                )
 
                 # Step 4a: Save figure
-                if (plot_option):
+                if plot_option:
                     CL.plotScatter(GetBaseName() + "_algo_" + algo + ".pdf")
 
                 # Step 4 b: Save result in pickle
-                pickle_out = open(basefolder_results +"/"+ filename_pickle, "ab")
+                pickle_out = open(
+                    basefolder_results + "/" + filename_pickle, "ab"
+                )
                 pickle.dump(CL, pickle_out)
                 pickle_out.close()
 
@@ -151,27 +190,39 @@ def ComputeSeries(basefolder, input_filename, name_):
 
                 data_eval["compute_time"].append(CL.computationTime)
                 data_eval["true_positives_ratio"].append(
-                    CL.cluster_evaluation["true_positives"] / CL.Geometry.N_clusters)
+                    CL.cluster_evaluation["true_positives"]
+                    / CL.Geometry.N_clusters
+                )
                 data_eval["false_positives_ratio"].append(
-                    CL.cluster_evaluation["false_positives"] / CL.Geometry.N_clusters)
+                    CL.cluster_evaluation["false_positives"]
+                    / CL.Geometry.N_clusters
+                )
                 data_eval["results"].append(result_)
 
                 df = pd.DataFrame(data=data_eval)
-                df.to_csv(basefolder_results +"/"+ filename_dataframe)
+                df.to_csv(basefolder_results + "/" + filename_dataframe)
 
-                data_subcl['subcl'] += list(CL.number_of_subclusters)
-                data_subcl['algos'] += [algo] * len(CL.number_of_subclusters)
+                data_subcl["subcl"] += list(CL.number_of_subclusters)
+                data_subcl["algos"] += [algo] * len(CL.number_of_subclusters)
             # Step 4 c: Save results in table
 
             df_subcl = pd.DataFrame(data=data_subcl)
             df_subcl.to_csv(
-                basefolder_results +"/"+ filename_base + "_subclusters" + str(var_1) + "_" + str(var_2) + ".txt")
+                basefolder_results
+                + "/"
+                + filename_base
+                + "_subclusters"
+                + str(var_1)
+                + "_"
+                + str(var_2)
+                + ".txt"
+            )
 
 
 def ComputePhaseSpace(basefolder, input_filename, name_):
     # load the parameters
-    print('Loading parameters from ' + input_filename + ' ...')
-    with open(input_filename, 'r') as fp:
+    print("Loading parameters from " + input_filename + " ...")
+    with open(input_filename, "r") as fp:
         params = json.load(fp)
 
     plot_option = True
@@ -184,8 +235,10 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
     filename_pickle = filename_base + ".pickle"
     filename_dataframe = filename_base + ".txt"
     filename_json = filename_base + "_Parameters.json"
-    #basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  #
-    basefolder_results = os.path.join(basefolder, "Results_" + date_time + "_" + name_)
+    # basefolder_results = basefolder + "Results_" + date_time + "_" + name_ + "/"  #
+    basefolder_results = os.path.join(
+        basefolder, "Results_" + date_time + "_" + name_
+    )
 
     # create `basefolder` if it does not exist
     if os.path.exists(basefolder):
@@ -200,64 +253,89 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
         os.makedirs(basefolder_results)
 
     # store the parameter
-    with open(basefolder_results + filename_json, 'w') as fp:
+    with open(basefolder_results + filename_json, "w") as fp:
         json.dump(params, fp, indent=5)
 
-    data_eval = {params['var_1_name']: [],
-                 params['var_2_name']: [],
-                 'algo': [],
-                 'true_positives_ratio': [],
-                 'false_positives_ratio': [],
-                 'compute_time': [],
-                 'results': []}
+    data_eval = {
+        params["var_1_name"]: [],
+        params["var_2_name"]: [],
+        "algo": [],
+        "true_positives_ratio": [],
+        "false_positives_ratio": [],
+        "compute_time": [],
+        "results": [],
+    }
 
-    var_1_name = params['var_1_name']
-    var_2_name = params['var_2_name']
+    var_1_name = params["var_1_name"]
+    var_2_name = params["var_2_name"]
 
     def GetBaseName():
-        return basefolder_results + filename_base + "_" + var_1_name + "_" + str(params[var_1_name]) + \
-               "_" + var_2_name + "_" + str(params[var_2_name])
+        return (
+            basefolder_results
+            + filename_base
+            + "_"
+            + var_1_name
+            + "_"
+            + str(params[var_1_name])
+            + "_"
+            + var_2_name
+            + "_"
+            + str(params[var_2_name])
+        )
 
-    for var_1 in params['var_1_values']:
+    for var_1 in params["var_1_values"]:
         params[var_1_name] = var_1
 
-        for var_2 in params['var_2_values']:
+        for var_2 in params["var_2_values"]:
             params[var_2_name] = var_2
-            print("Geometry is ", params['geometry'])
+            print("Geometry is ", params["geometry"])
             # GEOMETRY == GRID
-            if (params['geometry'] == 'grid'):
-                G = Geometry_Grid(basefolder, params['unit_type'],
-                                  n_side=params['n_side'],
-                                  Delta_ratio=params['Delta_ratio'],
-                                  noise_ratio=params['noise_ratio'])
-                G.GeneratePoints(params['seed'])
+            if params["geometry"] == "grid":
+                G = Geometry_Grid(
+                    basefolder,
+                    params["unit_type"],
+                    n_side=params["n_side"],
+                    Delta_ratio=params["Delta_ratio"],
+                    noise_ratio=params["noise_ratio"],
+                )
+                G.GeneratePoints(params["seed"])
 
             # GEOMETRY == PATH
 
-            elif (params['geometry'] == 'path'):
-                G = Geometry_Path(basefolder, params['unit_type'])
-                if ('noise_ratio' in params):
-                    n_noise = params['noise_ratio'] * G.GetTypical_Number_of_points_templateClusters() * params[
-                        'N_clusters']
+            elif params["geometry"] == "path":
+                G = Geometry_Path(basefolder, params["unit_type"])
+                if "noise_ratio" in params:
+                    n_noise = (
+                        params["noise_ratio"]
+                        * G.GetTypical_Number_of_points_templateClusters()
+                        * params["N_clusters"]
+                    )
                     n_noise = np.int(n_noise)
                 else:
-                    n_noise = params['noise_ratio_per_cluster'] * params['N_clusters']
-                G.GeneratePoints(params['N_clusters'],
-                                 n_noise,
-                                 params['seed'])
+                    n_noise = (
+                        params["noise_ratio_per_cluster"]
+                        * params["N_clusters"]
+                    )
+                G.GeneratePoints(params["N_clusters"], n_noise, params["seed"])
 
             # GEOMETRY == FREE
-            elif (params['geometry'] == 'free'):
-                G = Geometry_Free(basefolder, params['unit_type'], noise_ratio=params['noise_ratio'])
-                G.GeneratePoints(params['seed'])
+            elif params["geometry"] == "free":
+                G = Geometry_Free(
+                    basefolder,
+                    params["unit_type"],
+                    noise_ratio=params["noise_ratio"],
+                )
+                G.GeneratePoints(params["seed"])
 
                 # Test: What does testset look like?
-            if (plot_option):
-                plotScatter(G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf")
+            if plot_option:
+                plotScatter(
+                    G.labels_groundtruth, G.XC, filename=GetBaseName() + ".pdf"
+                )
 
-            data_subcl = {'subcl': [], 'algos': []}
+            data_subcl = {"subcl": [], "algos": []}
 
-            for algo in params['algos']:
+            for algo in params["algos"]:
                 # Step 2: Set up Object
                 # print(basefolder)
                 print()
@@ -266,13 +344,21 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
                 CL = Clustering(G, basefolder)
 
                 # Step 3: Compute clustering
-                result_ = CL.fit(algo, params['params_algos'])
+                result_ = CL.fit(algo, params["params_algos"])
                 CL.evaluate()
 
-                np.savetxt(basefolder_results + filename_base + "labels_" + algo + ".txt", CL.labels, fmt="%.0f")
+                np.savetxt(
+                    basefolder_results
+                    + filename_base
+                    + "labels_"
+                    + algo
+                    + ".txt",
+                    CL.labels,
+                    fmt="%.0f",
+                )
 
                 # Step 4a: Save figure
-                if (plot_option):
+                if plot_option:
                     CL.plotScatter(GetBaseName() + "_algo_" + algo + ".pdf")
 
                 # Step 4 b: Save result in pickle
@@ -287,24 +373,35 @@ def ComputePhaseSpace(basefolder, input_filename, name_):
 
                 data_eval["compute_time"].append(CL.computationTime)
                 data_eval["true_positives_ratio"].append(
-                    CL.cluster_evaluation["true_positives"] / CL.Geometry.N_clusters)
+                    CL.cluster_evaluation["true_positives"]
+                    / CL.Geometry.N_clusters
+                )
                 data_eval["false_positives_ratio"].append(
-                    CL.cluster_evaluation["false_positives"] / CL.Geometry.N_clusters)
+                    CL.cluster_evaluation["false_positives"]
+                    / CL.Geometry.N_clusters
+                )
                 data_eval["results"].append(result_)
 
                 df = pd.DataFrame(data=data_eval)
                 df.to_csv(basefolder_results + filename_dataframe)
 
-                data_subcl['subcl'] += list(CL.number_of_subclusters)
-                data_subcl['algos'] += [algo] * len(CL.number_of_subclusters)
+                data_subcl["subcl"] += list(CL.number_of_subclusters)
+                data_subcl["algos"] += [algo] * len(CL.number_of_subclusters)
             # Step 4 c: Save results in table
 
             df_subcl = pd.DataFrame(data=data_subcl)
             df_subcl.to_csv(
-                basefolder_results + filename_base + "_subclusters" + str(var_1) + "_" + str(var_2) + ".txt")
+                basefolder_results
+                + filename_base
+                + "_subclusters"
+                + str(var_1)
+                + "_"
+                + str(var_2)
+                + ".txt"
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     basefolder = sys.argv[1]
     input_filename = sys.argv[2]
@@ -320,6 +417,6 @@ if __name__ == '__main__':
     if os.path.isfile(input_filename):
         pass
     else:
-        input_filename = os.path.join(basefolder,'Input', input_filename)
+        input_filename = os.path.join(basefolder, "Input", input_filename)
 
     ComputeSeries(basefolder, input_filename, name_)

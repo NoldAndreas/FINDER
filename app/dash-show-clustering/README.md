@@ -29,6 +29,3 @@ Especially from the following apps:
 ## Authors
 
 * **Andreas Nold** - s[@NoldAndreas](https://github.com/NoldAndreas)
-
-
-

@@ -1,35 +1,37 @@
-import time
 import importlib
 import os
+import time
 
 import dash
-from dash import dcc, html
 import matplotlib as matplotlib
-from matplotlib.pyplot import figure, text
-
 import numpy as np
-from dash.dependencies import Input, Output, State
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn import datasets
-from sklearn.svm import SVC
-
+import utils.cell_segmentation as cell
 import utils.dash_reusable_components as drc
 import utils.figures as figs
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
+from matplotlib.pyplot import figure, text
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
-import utils.cell_segmentation as cell
+matplotlib.pyplot.switch_backend("Agg")
 
-matplotlib.pyplot.switch_backend('Agg')
+BASEDIR = "../../../Data_AnalysisOrganized/"
 
-BASEDIR = "../../../Data_AnalysisOrganized/" 
-
-DIRS = sorted((f for f in os.listdir(BASEDIR) if not f.startswith(".")), key=str.lower)
+DIRS = sorted(
+    (f for f in os.listdir(BASEDIR) if not f.startswith(".")), key=str.lower
+)
 
 
 app = dash.Dash(
     __name__,
     meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+        {
+            "name": "viewport",
+            "content": "width=device-width, initial-scale=1.0",
+        }
     ],
 )
 app.title = "Support Vector Machine"
@@ -38,7 +40,9 @@ server = app.server
 
 def generate_data(n_samples, dataset, noise):
     if dataset == "moons":
-        return datasets.make_moons(n_samples=n_samples, noise=noise, random_state=0)
+        return datasets.make_moons(
+            n_samples=n_samples, noise=noise, random_state=0
+        )
 
     elif dataset == "circles":
         return datasets.make_circles(
@@ -94,7 +98,9 @@ app.layout = html.Div(
                         html.A(
                             id="banner-logo",
                             children=[
-                                html.Img(src=app.get_asset_url("dash-logo-new.png"))
+                                html.Img(
+                                    src=app.get_asset_url("dash-logo-new.png")
+                                )
                             ],
                             href="https://plot.ly/products/dash/",
                         ),
@@ -120,8 +126,9 @@ app.layout = html.Div(
                                         drc.NamedDropdown(
                                             name="Select Dataset",
                                             id="dropdown-select-dataset",
-                                            options = [
-                                                {'label': i, 'value': i} for i in DIRS
+                                            options=[
+                                                {"label": i, "value": i}
+                                                for i in DIRS
                                             ],
                                             clearable=False,
                                             searchable=False,
@@ -133,7 +140,7 @@ app.layout = html.Div(
                                             clearable=False,
                                             searchable=False,
                                         ),
-                                    ]
+                                    ],
                                 ),
                                 drc.Card(
                                     id="second-card",
@@ -146,7 +153,13 @@ app.layout = html.Div(
                                             step=200,
                                             marks={
                                                 str(i): str(i)
-                                                for i in [200,400,600,800,1000]
+                                                for i in [
+                                                    200,
+                                                    400,
+                                                    600,
+                                                    800,
+                                                    1000,
+                                                ]
                                             },
                                             value=800,
                                         ),
@@ -158,7 +171,14 @@ app.layout = html.Div(
                                             step=0.2,
                                             marks={
                                                 str(i): str(i)
-                                                for i in [0,0.2,0.4,0.6,0.8,1]
+                                                for i in [
+                                                    0,
+                                                    0.2,
+                                                    0.4,
+                                                    0.6,
+                                                    0.8,
+                                                    1,
+                                                ]
                                             },
                                             value=0.8,
                                         ),
@@ -170,7 +190,7 @@ app.layout = html.Div(
                                             step=2,
                                             marks={
                                                 str(i): str(i)
-                                                for i in np.arange(2,22,2)
+                                                for i in np.arange(2, 22, 2)
                                             },
                                             value=10,
                                         ),
@@ -182,7 +202,14 @@ app.layout = html.Div(
                                             step=10,
                                             marks={
                                                 str(i): str(i)
-                                                for i in [0,10,20,30,40,50]
+                                                for i in [
+                                                    0,
+                                                    10,
+                                                    20,
+                                                    30,
+                                                    40,
+                                                    50,
+                                                ]
                                             },
                                             value=20,
                                         ),
@@ -196,11 +223,11 @@ app.layout = html.Div(
                                             id="button-apply",
                                         ),
                                         dcc.Textarea(
-                                            id='display-parameters',
-                                            value='',
-                                        )
-                                    ]
-                                )
+                                            id="display-parameters",
+                                            value="",
+                                        ),
+                                    ],
+                                ),
                             ],
                         ),
                         html.Div(
@@ -209,7 +236,8 @@ app.layout = html.Div(
                                 id="graph-sklearn-svm",
                                 figure=dict(
                                     layout=dict(
-                                        plot_bgcolor="#282b38", paper_bgcolor="#282b38"
+                                        plot_bgcolor="#282b38",
+                                        paper_bgcolor="#282b38",
                                     )
                                 ),
                             ),
@@ -221,14 +249,16 @@ app.layout = html.Div(
     ]
 )
 
+
 @app.callback(
     Output("display-parameters", "value"),
     [Input("button-apply", "n_clicks")],
-    [State("dropdown-select-dataset","value"),
-    State("slider-number-pixels","value"),
-    State("slider-intensity-cutoff","value"),
-    State("slider-gaussian-sigma","value"),
-    State("slider-cell-padding","value"),
+    [
+        State("dropdown-select-dataset", "value"),
+        State("slider-number-pixels", "value"),
+        State("slider-intensity-cutoff", "value"),
+        State("slider-gaussian-sigma", "value"),
+        State("slider-cell-padding", "value"),
     ],
 )
 def apply_split(
@@ -240,7 +270,7 @@ def apply_split(
     cell_padding,
 ):
     if n_clicks:
-        cell_name = os.path.join(BASEDIR,dataset)
+        cell_name = os.path.join(BASEDIR, dataset)
         cell_sample = cell.CellSegmentation(cell_name)
         cell_sample.segmentation()
 
@@ -261,36 +291,39 @@ def apply_split(
 
 
 @app.callback(
-     Output('dropdown-select-window', 'options'),
-    [Input('dropdown-select-dataset', 'value')]
+    Output("dropdown-select-window", "options"),
+    [Input("dropdown-select-dataset", "value")],
 )
 def update_window_selection(dataset):
-    output_dir = os.path.join("../../../AnalysisDataOrganized/",dataset,"Output")
+    output_dir = os.path.join(
+        "../../../AnalysisDataOrganized/", dataset, "Output"
+    )
     if os.path.isdir(output_dir):
-        list_ = [d for d in os.listdir(output_dir) if os.path.isdir(os.path.join(output_dir,d))]
+        list_ = [
+            d
+            for d in os.listdir(output_dir)
+            if os.path.isdir(os.path.join(output_dir, d))
+        ]
     else:
         list_ = []
 
-    return [{'value' : i, 'label' : i} for i in list_]
+    return [{"value": i, "label": i} for i in list_]
+
 
 @app.callback(
     Output("div-graphs", "children"),
     [
-        Input("dropdown-select-dataset","value"),
-        Input("slider-number-pixels","value"),
-        Input("slider-intensity-cutoff","value"),
-        Input("slider-gaussian-sigma","value"),
-        Input("slider-cell-padding","value"),
+        Input("dropdown-select-dataset", "value"),
+        Input("slider-number-pixels", "value"),
+        Input("slider-intensity-cutoff", "value"),
+        Input("slider-gaussian-sigma", "value"),
+        Input("slider-cell-padding", "value"),
     ],
 )
 def update_svm_graph(
-    dataset,
-    number_pixels,
-    intensity_cutoff,
-    sigma_gaussian,
-    cell_padding
+    dataset, number_pixels, intensity_cutoff, sigma_gaussian, cell_padding
 ):
-    cell_name = os.path.join(BASEDIR,dataset)
+    cell_name = os.path.join(BASEDIR, dataset)
     cell_sample = cell.CellSegmentation(cell_name)
     cell_sample.segmentation()
 
@@ -300,9 +333,15 @@ def update_svm_graph(
     cell_sample.parameters["pad_cell_border"] = cell_padding
 
     cell_sample.segmentation()
-    prediction_figure = figs.serve_overview_plot(cell_sample.cutoff_image, title="Input image after cutoff")
-    segmentation_figure_incell = figs.serve_overview_plot(cell_sample.im_incell.astype('int'), title="Incell area")
-    segmentation_figure_outcell = figs.serve_overview_plot(cell_sample.im_outcell.astype('int'), title="Outcell area")
+    prediction_figure = figs.serve_overview_plot(
+        cell_sample.cutoff_image, title="Input image after cutoff"
+    )
+    segmentation_figure_incell = figs.serve_overview_plot(
+        cell_sample.im_incell.astype("int"), title="Incell area"
+    )
+    segmentation_figure_outcell = figs.serve_overview_plot(
+        cell_sample.im_outcell.astype("int"), title="Outcell area"
+    )
 
     histogram_figure = figs.serve_histogram(cell_sample)
 
@@ -312,31 +351,41 @@ def update_svm_graph(
             children=[
                 dcc.Loading(
                     className="graph-wrapper",
-                    children=dcc.Graph(id="graph-sklearn-svm", figure=prediction_figure),
+                    children=dcc.Graph(
+                        id="graph-sklearn-svm", figure=prediction_figure
+                    ),
                     style={"display": "none"},
                 ),
                 dcc.Loading(
                     className="graph-wrapper",
-                    children=dcc.Graph(id="graph-sklearn-svm", figure=histogram_figure),
+                    children=dcc.Graph(
+                        id="graph-sklearn-svm", figure=histogram_figure
+                    ),
                     style={"display": "none"},
                 ),
-            ]
+            ],
         ),
         html.Div(
             id="graphs-container",
             children=[
                 dcc.Loading(
                     className="graph-wrapper",
-                    children=dcc.Graph(id="graph-sklearn-svm", figure=segmentation_figure_incell),
+                    children=dcc.Graph(
+                        id="graph-sklearn-svm",
+                        figure=segmentation_figure_incell,
+                    ),
                     style={"display": "none"},
                 ),
                 dcc.Loading(
                     className="graph-wrapper",
-                    children=dcc.Graph(id="graph-sklearn-svm", figure=segmentation_figure_outcell),
+                    children=dcc.Graph(
+                        id="graph-sklearn-svm",
+                        figure=segmentation_figure_outcell,
+                    ),
                     style={"display": "none"},
                 ),
-            ]
-        )
+            ],
+        ),
     ]
 
 

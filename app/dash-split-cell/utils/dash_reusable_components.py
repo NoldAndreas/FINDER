@@ -14,12 +14,15 @@ def _omit(omitted_keys, d):
 
 # Custom Display Components
 def Card(children, **kwargs):
-    return html.Section(className="card", children=children, **_omit(["style"], kwargs))
+    return html.Section(
+        className="card", children=children, **_omit(["style"], kwargs)
+    )
 
 
 def FormattedSlider(**kwargs):
     return html.Div(
-        style=kwargs.get("style", {}), children=dcc.Slider(**_omit(["style"], kwargs))
+        style=kwargs.get("style", {}),
+        children=dcc.Slider(**_omit(["style"], kwargs)),
     )
 
 
@@ -28,7 +31,9 @@ def NamedSlider(name, **kwargs):
         style={"padding": "20px 10px 25px 4px"},
         children=[
             html.P(f"{name}:"),
-            html.Div(style={"margin-left": "6px"}, children=dcc.Slider(**kwargs)),
+            html.Div(
+                style={"margin-left": "6px"}, children=dcc.Slider(**kwargs)
+            ),
         ],
     )
 

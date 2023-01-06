@@ -16,6 +16,3 @@ This app was built on this [demo app](https://dash-gallery.plotly.host/dash-svm/
 ## Authors
 
 * **Andreas Nold** - [@NoldAndreas](https://github.com/NoldAndreas)
-
-
-

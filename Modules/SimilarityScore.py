@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+
 import numpy as np
 import pandas as pd
 from ProgressBar import printProgressBar
@@ -10,41 +11,56 @@ def GetSimilarityScorePerCluster(XC, phasespace, df_clusters=[]):
     if len(df_clusters) == 0:
         df_clusters = getClusterSizesAll(XC, phasespace)
 
-    cli_similarityScore, similarityScore = getSimilarityScore(XC, phasespace, df_clusters)
+    cli_similarityScore, similarityScore = getSimilarityScore(
+        XC, phasespace, df_clusters
+    )
 
-    df_clusters['similarityScore'] = cli_similarityScore
-    phasespace['similarityScore'] = similarityScore
+    df_clusters["similarityScore"] = cli_similarityScore
+    phasespace["similarityScore"] = similarityScore
 
-    return phasespace, df_clusters  # cli_similarityScore,similarityScore; #phaseSpace,df_clusters;
+    return (
+        phasespace,
+        df_clusters,
+    )  # cli_similarityScore,similarityScore; #phaseSpace,df_clusters;
 
 
 def getSimilarityScoreByThreshold(XC, PS, clusterInfo):
-#
+    #
     t1 = time.time()
     # Get the info from clusterInfo
-    cli_index = clusterInfo['index']
+    cli_index = clusterInfo["index"]
 
-    cli_similarityScore = np.zeros([len(cli_index), ], dtype=int)
+    cli_similarityScore = np.zeros(
+        [
+            len(cli_index),
+        ],
+        dtype=int,
+    )
     n = len(PS)
     similarityScoreMatrix = np.zeros(shape=(n, n))
     similarityScore = np.zeros(shape=(n,))
     ps_index = PS.index
-    #1 define a list of the unique threshold values
-    threshold_list = np.unique(PS['threshold'])
-
+    # 1 define a list of the unique threshold values
+    threshold_list = np.unique(PS["threshold"])
 
     # centers,radii = __computeCenters_Radii(XC,PS);
 
     # Compute the similarities
     progress_i = 0
-    printProgressBar(progress_i, len(PS), prefix='Postprocessing progress:', suffix='Complete', length=50)
+    printProgressBar(
+        progress_i,
+        len(PS),
+        prefix="Postprocessing progress:",
+        suffix="Complete",
+        length=50,
+    )
     for th in threshold_list:
         PS_th = PS[PS["threshold"] == th]
 
         for i, ps in PS_th.iterrows():
-            mark_i = (cli_index == i)
+            mark_i = cli_index == i
             for j in PS_th.index[PS_th.index <= i]:  # np.arange(i+1):
-                mark_j = (cli_index == j)
+                mark_j = cli_index == j
                 if not (i == j):
                     s_ij = getSimilarityScore_ij(i, j, PS, clusterInfo)
 
@@ -57,24 +73,37 @@ def getSimilarityScoreByThreshold(XC, PS, clusterInfo):
                     cli_similarityScore[mark_j] += s_ij[1]
 
                     similarityScoreMatrix[
-                        ps_index == j, ps_index == i] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
+                        ps_index == j, ps_index == i
+                    ] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
                     similarityScoreMatrix[
-                        ps_index == i, ps_index == j] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
+                        ps_index == i, ps_index == j
+                    ] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
                 # else:
                 # we do not include similarity with self
 
             progress_i += 1
-            printProgressBar(progress_i, len(PS), prefix='Progress:', suffix='Complete', length=50)
-    print("Computing similarity scores: " + str(np.round(time.time() - t1, 2)) + " seconds")
+            printProgressBar(
+                progress_i,
+                len(PS),
+                prefix="Progress:",
+                suffix="Complete",
+                length=50,
+            )
+    print(
+        "Computing similarity scores: "
+        + str(np.round(time.time() - t1, 2))
+        + " seconds"
+    )
 
     # ***************************
     # Collect data
     # ***************************
     for i, ps in PS.iterrows():
-        similarityScore[ps_index == i] = np.sum(similarityScoreMatrix[ps_index == i, :])
+        similarityScore[ps_index == i] = np.sum(
+            similarityScoreMatrix[ps_index == i, :]
+        )
 
     return cli_similarityScore, similarityScore
-
 
 
 #     # for each element of the list, find the indexes corresponding to that
@@ -82,7 +111,7 @@ def getSimilarityScoreByThreshold(XC, PS, clusterInfo):
 
 
 def getSimilarityScore(XC, PS, clusterInfo):
-    '''
+    """
 
     Compute similarity score for the whole phase-space.
 
@@ -103,13 +132,18 @@ def getSimilarityScore(XC, PS, clusterInfo):
     Returns
     -------
 
-    '''
+    """
 
     t1 = time.time()
     # Get the info from clusterInfo
-    cli_index = clusterInfo['index']
+    cli_index = clusterInfo["index"]
 
-    cli_similarityScore = np.zeros([len(cli_index), ], dtype=int)
+    cli_similarityScore = np.zeros(
+        [
+            len(cli_index),
+        ],
+        dtype=int,
+    )
     n = len(PS)
     similarityScoreMatrix = np.zeros(shape=(n, n))
     similarityScore = np.zeros(shape=(n,))
@@ -119,11 +153,17 @@ def getSimilarityScore(XC, PS, clusterInfo):
 
     # Compute the similarities
     progress_i = 0
-    printProgressBar(progress_i, len(PS), prefix='Postprocessing progress:', suffix='Complete', length=50)
+    printProgressBar(
+        progress_i,
+        len(PS),
+        prefix="Postprocessing progress:",
+        suffix="Complete",
+        length=50,
+    )
     for i, ps in PS.iterrows():
-        mark_i = (cli_index == i)
+        mark_i = cli_index == i
         for j in PS.index[PS.index <= i]:  # np.arange(i+1):
-            mark_j = (cli_index == j)
+            mark_j = cli_index == j
 
             if not (i == j):
                 s_ij = getSimilarityScore_ij(i, j, PS, clusterInfo)
@@ -137,21 +177,35 @@ def getSimilarityScore(XC, PS, clusterInfo):
                 cli_similarityScore[mark_j] += s_ij[1]
 
                 similarityScoreMatrix[
-                    ps_index == j, ps_index == i] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
+                    ps_index == j, ps_index == i
+                ] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[j,"labels"]) + 1)
                 similarityScoreMatrix[
-                    ps_index == i, ps_index == j] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
+                    ps_index == i, ps_index == j
+                ] = score  # /Normalize here?  eg  /np.int(np.max(PS.loc[i,"labels"]) + 1)
             # else:
             # we do not include similarity with self
 
         progress_i += 1
-        printProgressBar(progress_i, len(PS), prefix='Progress:', suffix='Complete', length=50)
-    print("Computing similarity scores: " + str(np.round(time.time() - t1, 2)) + " seconds")
+        printProgressBar(
+            progress_i,
+            len(PS),
+            prefix="Progress:",
+            suffix="Complete",
+            length=50,
+        )
+    print(
+        "Computing similarity scores: "
+        + str(np.round(time.time() - t1, 2))
+        + " seconds"
+    )
 
     # ***************************
     # Collect data
     # ***************************
     for i, ps in PS.iterrows():
-        similarityScore[ps_index == i] = np.sum(similarityScoreMatrix[ps_index == i, :])
+        similarityScore[ps_index == i] = np.sum(
+            similarityScoreMatrix[ps_index == i, :]
+        )
 
     return cli_similarityScore, similarityScore
 
@@ -192,16 +246,30 @@ def getClusterSizesAll(XC, PS):
 
     for idx, df1_row in PS.iterrows():
 
-        labels_i = df1_row['labels']
+        labels_i = df1_row["labels"]
         l_ = np.arange(np.max(labels_i) + 1)
 
-        if (l_.shape[0] == 0):
+        if l_.shape[0] == 0:
             continue
 
         labels = np.concatenate((labels, l_))
-        cl_sizes = np.concatenate((cl_sizes, np.asarray([np.sum(labels_i == l) for l in l_])))
-        thresholds = np.concatenate((thresholds, df1_row['threshold'] * np.ones_like(l_)))
-        sigmas = np.concatenate((sigmas, df1_row['sigma'] * np.ones([len(l_), ])))
+        cl_sizes = np.concatenate(
+            (cl_sizes, np.asarray([np.sum(labels_i == l) for l in l_]))
+        )
+        thresholds = np.concatenate(
+            (thresholds, df1_row["threshold"] * np.ones_like(l_))
+        )
+        sigmas = np.concatenate(
+            (
+                sigmas,
+                df1_row["sigma"]
+                * np.ones(
+                    [
+                        len(l_),
+                    ]
+                ),
+            )
+        )
         index = np.concatenate((index, idx * np.ones_like(l_)))
 
         centers_new, radii_new = __computeCenters_Radii_rowPS(XC, df1_row)
@@ -209,19 +277,19 @@ def getClusterSizesAll(XC, PS):
         radii = np.concatenate((radii, radii_new))
 
     df_clusterSizes = pd.DataFrame()
-    df_clusterSizes['labels'] = labels
-    df_clusterSizes['clusterSize'] = cl_sizes
-    df_clusterSizes['threshold'] = thresholds
-    df_clusterSizes['sigma'] = sigmas
-    df_clusterSizes['index'] = index
-    df_clusterSizes['center'] = list(centers)
-    df_clusterSizes['radius'] = radii
+    df_clusterSizes["labels"] = labels
+    df_clusterSizes["clusterSize"] = cl_sizes
+    df_clusterSizes["threshold"] = thresholds
+    df_clusterSizes["sigma"] = sigmas
+    df_clusterSizes["index"] = index
+    df_clusterSizes["center"] = list(centers)
+    df_clusterSizes["radius"] = radii
 
     return df_clusterSizes
 
 
 def getSimilarityScore_ij(i, j, PS, clusterInfo):
-    '''
+    """
     Compute the similarity score between two subsets.
 
     Parameters
@@ -239,46 +307,56 @@ def getSimilarityScore_ij(i, j, PS, clusterInfo):
     [s_i, s_j] : list
         The scores for the i and j component.
 
-    '''
+    """
     labels_1, labels_2 = PS.loc[i, "labels"], PS.loc[j, "labels"]
 
     #    clusterInfo_1 = clusterInfo.loc[clusterInfo['index']==i,:];
     #    clusterInfo_2 = clusterInfo.loc[clusterInfo['index']==j,:];
-    centers_1 = clusterInfo.loc[clusterInfo['index'] == i, 'center'].values
-    centers_2 = clusterInfo.loc[clusterInfo['index'] == j, 'center'].values
+    centers_1 = clusterInfo.loc[clusterInfo["index"] == i, "center"].values
+    centers_2 = clusterInfo.loc[clusterInfo["index"] == j, "center"].values
 
-    radii_1 = clusterInfo.loc[clusterInfo['index'] == i, 'radius'].values
-    radii_2 = clusterInfo.loc[clusterInfo['index'] == j, 'radius'].values
+    radii_1 = clusterInfo.loc[clusterInfo["index"] == i, "radius"].values
+    radii_2 = clusterInfo.loc[clusterInfo["index"] == j, "radius"].values
 
     # return zero score if no clusters selected or
     # if one cluster is selected which covers most points
-    if ((np.max(labels_1) == -1) or (np.max(labels_2) == -1)): #cluster are noise
+    if (np.max(labels_1) == -1) or (
+        np.max(labels_2) == -1
+    ):  # cluster are noise
         return False
-    elif ((np.max(labels_1) == 0) and (np.sum(labels_1 == 0) / len(labels_1) > 0.5)):
+    elif (np.max(labels_1) == 0) and (
+        np.sum(labels_1 == 0) / len(labels_1) > 0.5
+    ):
         return False
-    elif ((np.max(labels_2) == 0) and (np.sum(labels_2 == 0) / len(labels_2) > 0.5)):
+    elif (np.max(labels_2) == 0) and (
+        np.sum(labels_2 == 0) / len(labels_2) > 0.5
+    ):
         return False
 
     # ******************************
-    similarityMatrix = np.zeros((np.max(labels_1) + 1, np.max(labels_2) + 1), dtype=int)
+    similarityMatrix = np.zeros(
+        (np.max(labels_1) + 1, np.max(labels_2) + 1), dtype=int
+    )
     similarityMatrix[:] = -1
     # ******************************
 
     for i1 in np.unique(labels_1):
-        if (i1 == -1):  # exclude the noise cluster
+        if i1 == -1:  # exclude the noise cluster
             continue
         for i2 in np.unique(labels_2):
-            if (i2 == -1):  # exclude  the noise cluster
+            if i2 == -1:  # exclude  the noise cluster
                 continue
 
-            if (similarityMatrix[i1, i2] == 0):
+            if similarityMatrix[i1, i2] == 0:
                 continue
 
-            if (__No_OverlapClusters_Distance(i1, i2, centers_1, centers_2, radii_1, radii_2)):
+            if __No_OverlapClusters_Distance(
+                i1, i2, centers_1, centers_2, radii_1, radii_2
+            ):
                 similarityMatrix[i1, i2] = 0
                 continue
 
-            if (__OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2)):
+            if __OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2):
                 similarityMatrix[i1, :] = 0
                 similarityMatrix[:, i2] = 0
                 similarityMatrix[i1, i2] = 1
@@ -293,8 +371,10 @@ def getSimilarityScore_ij(i, j, PS, clusterInfo):
     return [s_i, s_j]
 
 
-def __No_OverlapClusters_Distance(i1, i2, centers_1, centers_2, radii_1, radii_2):
-    '''
+def __No_OverlapClusters_Distance(
+    i1, i2, centers_1, centers_2, radii_1, radii_2
+):
+    """
 
     Return true if the two subsets **do not** overlap.
     This is done by verifying that the distance between their centers is larger than the sum of their radii.
@@ -318,14 +398,14 @@ def __No_OverlapClusters_Distance(i1, i2, centers_1, centers_2, radii_1, radii_2
     -------
     bool
     Return True if subset `i1` and subset `i2` do not overlap.
-    '''
+    """
     c1, c2 = centers_1[i1], centers_2[i2]
     r1, r2 = radii_1[i1], radii_2[i2]
-    return (np.linalg.norm(c2 - c1) > r1 + r2)
+    return np.linalg.norm(c2 - c1) > r1 + r2
 
 
 def __OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2):
-    '''
+    """
 
     Given two labels 'i1' and 'i2' (i.e., two clusters) check if the number of overlapping points among the two is larger
     than the number of non-overlapping points.
@@ -344,7 +424,7 @@ def __OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2):
     -------
     bool
         True if the number of overlapping points is larger than the number of non-overlapping points.
-    '''
+    """
     # compute the number of element of the first cluster with label == `i1`
     no_locs_1 = np.sum(labels_1 == i1)
     # compute the number of element of the second cluster with label == `i2`
@@ -353,7 +433,9 @@ def __OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2):
     no_locs_overlap = np.sum((labels_1 == i1) * (labels_2 == i2))
 
     # return true if the majority of points overlaps.
-    if ((no_locs_overlap / no_locs_1 > 0.5) and (no_locs_overlap / no_locs_2 > 0.5)):
+    if (no_locs_overlap / no_locs_1 > 0.5) and (
+        no_locs_overlap / no_locs_2 > 0.5
+    ):
         return True
     else:
         return False
@@ -361,29 +443,29 @@ def __OverlapClusters_NumberOfLocs(i1, i2, labels_1, labels_2):
 
 def __computeCenters_Radii_rowPS(XC, ps):
     """
-For each parameter configuration in a single row of the dataset, compute the center and the radius of each cluster.
+    For each parameter configuration in a single row of the dataset, compute the center and the radius of each cluster.
 
-* `centers`:
-a list of arrays each of dimension (`no_clusters`,2),
-storing the coordinate of the center of each cluster
-Note that `no_clusters` varies for each element of the list.
+    * `centers`:
+    a list of arrays each of dimension (`no_clusters`,2),
+    storing the coordinate of the center of each cluster
+    Note that `no_clusters` varies for each element of the list.
 
-* 'radii':
-a list of arrays of size ('no_clusters').
-Contains the radius of each cluster, defined as the distance of the farthest point from the center.
-Note that `no_clusters` varies for each element of the list.
+    * 'radii':
+    a list of arrays of size ('no_clusters').
+    Contains the radius of each cluster, defined as the distance of the farthest point from the center.
+    Note that `no_clusters` varies for each element of the list.
 
 
-    Parameters
-    ----------
-    XC:
-        the datapoints.
-    ps:
-        a row of the phaspace.
+        Parameters
+        ----------
+        XC:
+            the datapoints.
+        ps:
+            a row of the phaspace.
 
-    Returns
-    -------
-    centers, radii
+        Returns
+        -------
+        centers, radii
     """
 
     no_clusters = np.max(ps["labels"]) + 1
@@ -393,7 +475,7 @@ Note that `no_clusters` varies for each element of the list.
 
     # go through all clusters:
     for icl in np.unique(ps["labels"]):
-        if (icl == -1):
+        if icl == -1:
             continue
         XCm = XC[(ps["labels"] == icl)]
 
@@ -406,33 +488,33 @@ Note that `no_clusters` varies for each element of the list.
 
 def __computeCenters_Radii(XC, PS):
     """
-#TODO: this is not used!
+    #TODO: this is not used!
 
-For each parameter configuration, compute the center and the radius of each cluster.
+    For each parameter configuration, compute the center and the radius of each cluster.
 
-* `centers` :
+    * `centers` :
 
-a list of arrays each of dimension (`no_clusters`,2),
-storing the coordinate of the center of each cluster
-Note that `no_clusters` varies for each element of the list.
+    a list of arrays each of dimension (`no_clusters`,2),
+    storing the coordinate of the center of each cluster
+    Note that `no_clusters` varies for each element of the list.
 
-* `radii` :
+    * `radii` :
 
-a list of arrays of size ('no_clusters').
-Contains the radius of each cluster, defined as the distance of the farthest point from the center.
-Note that `no_clusters` varies for each element of the list.
+    a list of arrays of size ('no_clusters').
+    Contains the radius of each cluster, defined as the distance of the farthest point from the center.
+    Note that `no_clusters` varies for each element of the list.
 
 
-    Parameters
-    ----------
-    XC:
-        the datapoints
-    PS:
-        the phase space
+        Parameters
+        ----------
+        XC:
+            the datapoints
+        PS:
+            the phase space
 
-    Returns
-    -------
-    centers, radii
+        Returns
+        -------
+        centers, radii
     """
 
     centers = []
@@ -448,7 +530,7 @@ Note that `no_clusters` varies for each element of the list.
 
         # go through all clusters:
         for icl in np.unique(ps["labels"]):
-            if (icl == -1):  # ignore noise
+            if icl == -1:  # ignore noise
                 continue
             # take all the point  with label icl
             XCm = XC[(ps["labels"] == icl)]

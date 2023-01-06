@@ -14,4 +14,3 @@ Identifies ROI (for signal)
 Step3_MaskImage:
 Separates points in signal and noise
 [filename + "_heatmap_mask.txt"] => [filename + "_X_signal.txt"], [filename + "_X_noise.txt"]
-

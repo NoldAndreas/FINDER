@@ -1,28 +1,35 @@
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 import pandas as pd
 import seaborn as sns
-from sklearn.cluster import DBSCAN
-from DbscanLoop import DbscanLoop
-from sklearn.neighbors import NearestNeighbors
-from ProgressBar import printProgressBar
 from AuxiliaryFunctions import GetLineOfOptima
-from SimilarityScore import getSimilarityScore, getSimilarityScoreByThreshold
-from SimilarityScore import getClusterSizesAll
-
+from DbscanLoop import DbscanLoop
+from ProgressBar import printProgressBar
+from SimilarityScore import (
+    getClusterSizesAll,
+    getSimilarityScore,
+    getSimilarityScoreByThreshold,
+)
+from sklearn.cluster import DBSCAN
+from sklearn.neighbors import NearestNeighbors
 
 
 class Finder:
-
-    def __init__(self, threshold=10, points_per_dimension=15, algo="DbscanLoop",
-                 minmax_threshold= [5, 21],
-                 one_two_d="twoD",
-                 similarity_score_computation="threshold"
-                 , log_thresholds=False
-                 , log_sigmas=True
-                 , adaptive_sigma_boundaries=False
-                 , decay = 0.5):
+    def __init__(
+        self,
+        threshold=10,
+        points_per_dimension=15,
+        algo="DbscanLoop",
+        minmax_threshold=[5, 21],
+        one_two_d="twoD",
+        similarity_score_computation="threshold",
+        log_thresholds=False,
+        log_sigmas=True,
+        adaptive_sigma_boundaries=False,
+        decay=0.5,
+    ):
 
         """
         The model class for the `FINDER` algorithm. It uses the sklearn API.
@@ -67,12 +74,17 @@ class Finder:
         self.no_points_thresholds = points_per_dimension
         self.algo = algo
         self.minmax_threshold = minmax_threshold
-        assert one_two_d in ["oneD", "oneD_thresholds", "twoD"], \
-            'Possible values are ["oneD", "oneD_thresholds", "twoD"]'
+        assert one_two_d in [
+            "oneD",
+            "oneD_thresholds",
+            "twoD",
+        ], 'Possible values are ["oneD", "oneD_thresholds", "twoD"]'
         self.one_two_d = one_two_d
         self.decay = decay
-        assert similarity_score_computation in ["total", "threshold"], \
-            'possible values are ["total", "threshold"]'
+        assert similarity_score_computation in [
+            "total",
+            "threshold",
+        ], 'possible values are ["total", "threshold"]'
         self.similarity_score_computation = similarity_score_computation
         self.log_thresholds = log_thresholds
         self.log_sigmas = log_sigmas
@@ -124,40 +136,71 @@ class Finder:
         t_3 = time.time()
 
         # Step 3: Compute similarity score
-        if (("skipSimilarityScore" in kwargs.keys()) and (kwargs['skipSimilarityScore'] == True)):
+        if ("skipSimilarityScore" in kwargs.keys()) and (
+            kwargs["skipSimilarityScore"] == True
+        ):
             print("skipping the similarity-score computation")
-            data = self.__phaseSpacePostProcess(XC, phasespace, skipSimilarityScore=True)
+            data = self.__phaseSpacePostProcess(
+                XC, phasespace, skipSimilarityScore=True
+            )
 
-            selth = self.phasespace.loc[np.argmin(np.abs(self.phasespace['threshold'] - self.threshold)), 'threshold']
-            mark = (self.phasespace['threshold'] == selth)
-            selected_parameters = self.phasespace.loc[self.phasespace.loc[mark, 'no_clusters'].idxmax()]
-            labels = selected_parameters['labels']
+            selth = self.phasespace.loc[
+                np.argmin(
+                    np.abs(self.phasespace["threshold"] - self.threshold)
+                ),
+                "threshold",
+            ]
+            mark = self.phasespace["threshold"] == selth
+            selected_parameters = self.phasespace.loc[
+                self.phasespace.loc[mark, "no_clusters"].idxmax()
+            ]
+            labels = selected_parameters["labels"]
 
         else:
             data = self.__phaseSpacePostProcess(XC, phasespace)
             # Step 3: Get parameterset
             if self.one_two_d == "twoD":
-                labels, selected_parameters = self.__get_consensus_clustering(data, XC)
+                labels, selected_parameters = self.__get_consensus_clustering(
+                    data, XC
+                )
             else:
-                print('USING 1D OPTIMIZER')
-                labels, selected_parameters = self.__get_consensus_clustering_1d(data, XC)
+                print("USING 1D OPTIMIZER")
+                (
+                    labels,
+                    selected_parameters,
+                ) = self.__get_consensus_clustering_1d(data, XC)
 
         t_4 = time.time()
 
         # labels,selected_parameters = self.__get_consensus_clustering2(data,XC);
-        print("Comp time Step 1 (set boundaries): " + str(np.round(t_2 - t_1, 2)) + " seconds")
-        print("Comp time Step 2 (clustering): " + str(np.round(t_3 - t_2, 2)) + " seconds")
-        print("Comp time Step 3 (postprocessing): " + str(np.round(t_4 - t_3, 2)) + " seconds")
+        print(
+            "Comp time Step 1 (set boundaries): "
+            + str(np.round(t_2 - t_1, 2))
+            + " seconds"
+        )
+        print(
+            "Comp time Step 2 (clustering): "
+            + str(np.round(t_3 - t_2, 2))
+            + " seconds"
+        )
+        print(
+            "Comp time Step 3 (postprocessing): "
+            + str(np.round(t_4 - t_3, 2))
+            + " seconds"
+        )
         print("Selected parameters: " + str(selected_parameters))
 
         # Save data
-        self.computationTimes = {'Step1': t_2 - t_1, 'Step2': t_3 - t_2, 'Step3': t_4 - t_3}
+        self.computationTimes = {
+            "Step1": t_2 - t_1,
+            "Step2": t_3 - t_2,
+            "Step3": t_4 - t_3,
+        }
         self.data = data
         self.labels = labels
         self.selected_parameters = selected_parameters
 
         return labels
-
 
     def ComputeClusters(self, sigma, threshold, XC):
         """
@@ -182,16 +225,16 @@ class Finder:
         """
         threshold = int(threshold)
 
-        if ((self.algo == "dbscan")):
+        if self.algo == "dbscan":
             DB = DBSCAN(eps=sigma, min_samples=threshold).fit(XC)
             labels_ = DB.labels_
 
-        elif ((self.algo == "DbscanLoop")):
+        elif self.algo == "DbscanLoop":
             DBL = DbscanLoop(eps=sigma, min_samples=threshold).fit(XC)
             labels_ = DBL.labels_
 
         else:
-            print("ALGORITHM NOT RECOGNIZED !!");
+            print("ALGORITHM NOT RECOGNIZED !!")
 
         return labels_
 
@@ -215,15 +258,25 @@ class Finder:
             minmax_sigma = self.__determine_sigma_boundaries(XC)
 
         if self.log_sigmas:
-            sigmas = self.__getLogDistribution(minmax_sigma[0], minmax_sigma[1], self.no_points_sigma)
+            sigmas = self.__getLogDistribution(
+                minmax_sigma[0], minmax_sigma[1], self.no_points_sigma
+            )
         else:
-            sigmas = np.linspace(minmax_sigma[0], minmax_sigma[1], self.no_points_sigma)
+            sigmas = np.linspace(
+                minmax_sigma[0], minmax_sigma[1], self.no_points_sigma
+            )
 
         if self.log_thresholds:
-            thresholds = np.linspace(self.minmax_threshold[0], self.minmax_threshold[1], self.no_points_sigma)
+            thresholds = np.linspace(
+                self.minmax_threshold[0],
+                self.minmax_threshold[1],
+                self.no_points_sigma,
+            )
             thresholds = np.unique(np.round(thresholds))
         else:
-            thresholds = np.arange(self.minmax_threshold[0], self.minmax_threshold[1])
+            thresholds = np.arange(
+                self.minmax_threshold[0], self.minmax_threshold[1]
+            )
 
         # thresholds = self.__getLogDistribution(self.minmax_threshold[0],
         # self.minmax_threshold[1],
@@ -250,8 +303,9 @@ class Finder:
         print("Thresholds are:")
         print(thresholds)
 
-        params = pd.DataFrame(data={"sigma": np.asarray(s_all),
-                                    "threshold": np.asarray(t_all)})
+        params = pd.DataFrame(
+            data={"sigma": np.asarray(s_all), "threshold": np.asarray(t_all)}
+        )
         return params
 
     def __getParams_Sigmas(self, XC):
@@ -276,12 +330,20 @@ class Finder:
             minmax_sigma = self.__determine_sigma_boundaries(XC)
 
         if self.log_sigmas:
-            sigmas = self.__getLogDistribution(minmax_sigma[0], minmax_sigma[1], self.no_points_sigma)
+            sigmas = self.__getLogDistribution(
+                minmax_sigma[0], minmax_sigma[1], self.no_points_sigma
+            )
         else:
-            sigmas = np.linspace(minmax_sigma[0], minmax_sigma[1], self.no_points_sigma)
+            sigmas = np.linspace(
+                minmax_sigma[0], minmax_sigma[1], self.no_points_sigma
+            )
 
-        params = pd.DataFrame(data={"sigma": sigmas,
-                                    "threshold": self.threshold * np.ones_like(sigmas)})
+        params = pd.DataFrame(
+            data={
+                "sigma": sigmas,
+                "threshold": self.threshold * np.ones_like(sigmas),
+            }
+        )
         return params
 
     def __getParams_Thresholds(self, XC):
@@ -316,13 +378,23 @@ class Finder:
         sigma = np.quantile(nPt_distance, 0.5)
 
         if self.log_thresholds:
-            thresholds = np.linspace(self.minmax_threshold[0], self.minmax_threshold[1], self.no_points_sigma)
+            thresholds = np.linspace(
+                self.minmax_threshold[0],
+                self.minmax_threshold[1],
+                self.no_points_sigma,
+            )
             thresholds = np.unique(np.round(thresholds))
         else:
-            thresholds = np.arange(self.minmax_threshold[0], self.minmax_threshold[1])
+            thresholds = np.arange(
+                self.minmax_threshold[0], self.minmax_threshold[1]
+            )
 
-        params = pd.DataFrame(data={"sigma": sigma * np.ones_like(thresholds),
-                                    "threshold": thresholds});
+        params = pd.DataFrame(
+            data={
+                "sigma": sigma * np.ones_like(thresholds),
+                "threshold": thresholds,
+            }
+        )
         return params
 
     def __determine_sigma_boundaries_adaptive(self, XC):
@@ -346,13 +418,18 @@ class Finder:
         k = self.minmax_threshold[1] + 1  # k         = self.threshold+1;
         neigh = NearestNeighbors(n_neighbors=k, n_jobs=-1)
         neigh.fit(XC)
-        dist_, ind = neigh.kneighbors(XC);
+        dist_, ind = neigh.kneighbors(XC)
         nPt_distance = [dist_[i][k - 1] for i in range(len(dist_))]
-        sigma_max = np.quantile(nPt_distance, 0.9);
+        sigma_max = np.quantile(nPt_distance, 0.9)
 
-        minmax_sigma = [sigma_min, sigma_max];
+        minmax_sigma = [sigma_min, sigma_max]
 
-        print("Boundaries for sigma    : " + str(minmax_sigma[0]) + " , " + str(minmax_sigma[1]))
+        print(
+            "Boundaries for sigma    : "
+            + str(minmax_sigma[0])
+            + " , "
+            + str(minmax_sigma[1])
+        )
 
         return minmax_sigma
 
@@ -385,7 +462,12 @@ class Finder:
         sigma_max = np.quantile(nPt_distance, 0.9)
         minmax_sigma = [sigma_min, sigma_max]
 
-        print("Boundaries for sigma    : " + str(minmax_sigma[0]) + " , " + str(minmax_sigma[1]))
+        print(
+            "Boundaries for sigma    : "
+            + str(minmax_sigma[0])
+            + " , "
+            + str(minmax_sigma[1])
+        )
 
         return minmax_sigma
 
@@ -406,7 +488,7 @@ class Finder:
         return vec
 
     def __phaseSpace(self, XC, params):
-        '''
+        """
 
         Given a set of point to be clustered,
         compute the cluster for each combination of parameters.
@@ -425,32 +507,52 @@ class Finder:
         ps: pd.Dataframe
         the phase space
 
-        '''
+        """
 
         labels_all = []
         times = []
 
         t1_all = time.time()
 
-        printProgressBar(0, len(params), prefix='Clustering progress:', suffix='Complete', length=50)
+        printProgressBar(
+            0,
+            len(params),
+            prefix="Clustering progress:",
+            suffix="Complete",
+            length=50,
+        )
 
         for index, param in params.iterrows():
             t1 = time.time()
-            labels_ = self.ComputeClusters(param['sigma'], param['threshold'], XC)
+            labels_ = self.ComputeClusters(
+                param["sigma"], param["threshold"], XC
+            )
             t2 = time.time()
             labels_all.append(labels_)
             times.append(t2 - t1)
-            printProgressBar(index + 1, len(params), prefix='Progress:', suffix='Complete', length=50)
+            printProgressBar(
+                index + 1,
+                len(params),
+                prefix="Progress:",
+                suffix="Complete",
+                length=50,
+            )
             # print("Computing time for sigma = "+str(np.round(param['sigma'],2))+" and minPts ="+ str(param['threshold'])+" : " + str(np.round(t2-t1,2)) );
 
-        print("Computing clusters : " + str(np.round(time.time() - t1_all, 2)) + " seconds")
+        print(
+            "Computing clusters : "
+            + str(np.round(time.time() - t1_all, 2))
+            + " seconds"
+        )
         ps = params
-        ps['labels'] = labels_all
-        ps['time'] = times
+        ps["labels"] = labels_all
+        ps["time"] = times
 
         return ps
 
-    def __phaseSpacePostProcess(self, XC, PS, skipSimilarityScore: bool = False):
+    def __phaseSpacePostProcess(
+        self, XC, PS, skipSimilarityScore: bool = False
+    ):
 
         """
         Postprocess the phasespace, computing the similarities between the clusters.
@@ -491,8 +593,13 @@ class Finder:
         # Preprocess: Initialize Cluster information
         # ***********************************************
         clusterInfo = getClusterSizesAll(XC, PS)
-        cli_index = clusterInfo['index']
-        cli_similarityScore = np.zeros([len(cli_index), ], dtype=int)
+        cli_index = clusterInfo["index"]
+        cli_similarityScore = np.zeros(
+            [
+                len(cli_index),
+            ],
+            dtype=int,
+        )
 
         for i, ps in PS.iterrows():
             no_clusters[i] = np.int(np.max(ps["labels"]) + 1)
@@ -503,7 +610,7 @@ class Finder:
         # ***************************
         ###
 
-        if (skipSimilarityScore == True):
+        if skipSimilarityScore == True:
             for i, ps in PS.iterrows():
                 similarityScore[i] = np.nan
         else:
@@ -512,11 +619,16 @@ class Finder:
             # ***************************************
 
             if self.similarity_score_computation == "total":
-                cli_similarityScore, similarityScore = getSimilarityScore(XC, PS, clusterInfo)
+                cli_similarityScore, similarityScore = getSimilarityScore(
+                    XC, PS, clusterInfo
+                )
             if self.similarity_score_computation == "threshold":
-                cli_similarityScore, similarityScore = getSimilarityScoreByThreshold(XC, PS, clusterInfo)
+                (
+                    cli_similarityScore,
+                    similarityScore,
+                ) = getSimilarityScoreByThreshold(XC, PS, clusterInfo)
 
-        clusterInfo['similarityScore'] = cli_similarityScore
+        clusterInfo["similarityScore"] = cli_similarityScore
         PS["similarityScore"] = similarityScore
 
         self.clusterInfo = clusterInfo
@@ -548,17 +660,24 @@ class Finder:
         # take its index
         idx = np.argwhere(similarity == max_score)[-1][0]
         # store the sigma
-        sigma_selected = PS.loc[idx, 'sigma']
+        sigma_selected = PS.loc[idx, "sigma"]
         # store the threshold
         threshold_selected = PS.loc[idx, "threshold"]
         # store the labels
-        labels = PS.loc[idx, 'labels']
+        labels = PS.loc[idx, "labels"]
 
         # store the selected parameters
-        selected_parameters = {"sigma": sigma_selected,
-                               "threshold": threshold_selected}
+        selected_parameters = {
+            "sigma": sigma_selected,
+            "threshold": threshold_selected,
+        }
 
-        print("Selected threshold , sigma : " + str(threshold_selected) + " , " + str(sigma_selected))
+        print(
+            "Selected threshold , sigma : "
+            + str(threshold_selected)
+            + " , "
+            + str(sigma_selected)
+        )
         return labels, selected_parameters
 
     def __get_consensus_clustering(self, PS, XC, decay=None):
@@ -588,25 +707,33 @@ class Finder:
         if decay is None:
             decay = self.decay
         # 1. Get optimal sigma for each theta
-        df_opt_th = GetLineOfOptima(PS, 'threshold', 'similarityScore')
+        df_opt_th = GetLineOfOptima(PS, "threshold", "similarityScore")
 
-        line_of_optima = df_opt_th['idx']
+        line_of_optima = df_opt_th["idx"]
         line_of_optima_sim = np.array(df_opt_th["similarityScore"])
         self.df_opt_th = df_opt_th
         self.line_of_optima = line_of_optima
         # 2. Normalize the diagonal
         opt_normalized = (line_of_optima_sim - line_of_optima_sim.min()) / (
-                line_of_optima_sim.max() - line_of_optima_sim.min())
+            line_of_optima_sim.max() - line_of_optima_sim.min()
+        )
 
         # 3. choose the theta for which the similarity score is < decay
         ind = np.where(opt_normalized < decay)[0][0]
         optim = PS.iloc[line_of_optima[ind]]
 
-        labels = optim['labels']
-        selected_parameters = {"sigma": optim['sigma'],
-                               "threshold": optim['threshold']}
+        labels = optim["labels"]
+        selected_parameters = {
+            "sigma": optim["sigma"],
+            "threshold": optim["threshold"],
+        }
 
-        print("Selected threshold , sigma : " + str(optim['threshold']) + " , " + str(optim['sigma']))
+        print(
+            "Selected threshold , sigma : "
+            + str(optim["threshold"])
+            + " , "
+            + str(optim["sigma"])
+        )
         return labels, selected_parameters
 
     def plotPhaseSpace(self, ax=None):
@@ -614,8 +741,8 @@ class Finder:
         sigmas = np.unique(self.phasespace["sigma"])
         thresholds = np.unique(self.phasespace["threshold"])
 
-        sigma_opt = self.selected_parameters['sigma']
-        threshold_opt = self.selected_parameters['threshold']
+        sigma_opt = self.selected_parameters["sigma"]
+        threshold_opt = self.selected_parameters["threshold"]
 
         sigma_opt_idx = np.where(sigmas == sigma_opt)[0][0]
         threshold_opt_idx = np.where(thresholds == threshold_opt)[0][0]
@@ -626,7 +753,9 @@ class Finder:
         similarity = []
         for i, row in self.phasespace.iterrows():
             similarity.append(row["similarityScore"])
-        sim_matr = np.round(np.flipud(np.array(similarity).reshape(15, -1).T), 2)
+        sim_matr = np.round(
+            np.flipud(np.array(similarity).reshape(15, -1).T), 2
+        )
 
         # Compute line of optima (max_list) for it
         max_list = []
@@ -639,15 +768,30 @@ class Finder:
         if ax is None:
             fig, ax = plt.subplots()
 
-        sns.heatmap(sim_matr, xticklabels=np.round(sigmas, 2), yticklabels=np.flipud(np.round(thresholds)),
-                    ax=ax, cbar=False, cmap='Reds')
+        sns.heatmap(
+            sim_matr,
+            xticklabels=np.round(sigmas, 2),
+            yticklabels=np.flipud(np.round(thresholds)),
+            ax=ax,
+            cbar=False,
+            cmap="Reds",
+        )
         from matplotlib.patches import Rectangle
 
         for i, j in enumerate(max_list[::-1]):
-            ax.add_patch(Rectangle((j, i), 1, 1, fill=False, edgecolor='blue', lw=3))
+            ax.add_patch(
+                Rectangle((j, i), 1, 1, fill=False, edgecolor="blue", lw=3)
+            )
         ax.add_patch(
-            Rectangle((sigma_opt_idx, len(thresholds) - 1 - threshold_opt_idx),
-                      1, 1, fill=False, edgecolor='green', lw=3))
+            Rectangle(
+                (sigma_opt_idx, len(thresholds) - 1 - threshold_opt_idx),
+                1,
+                1,
+                fill=False,
+                edgecolor="green",
+                lw=3,
+            )
+        )
         # sns.lineplot(ax=ax,data=FD.data,x='sigma',y='similarityScore');
         # sns.scatterplot(ax=ax,data=FD.data,x='sigma',y='similarityScore');
         # ax.axvline(sigma_min,c='r');
@@ -656,8 +800,7 @@ class Finder:
         # #plt.annotate('Selected value', (sigma_opt,FD.phasespace['similarityScore'][index_opt]))
         # trans = ax.get_xaxis_transform()
         # plt.text(sigma_opt, .5, 'Selected value', transform=trans,rotation=90)
-        ax.set_xlabel('eps (nm)')
-        ax.set_ylabel('minPts')
+        ax.set_xlabel("eps (nm)")
+        ax.set_ylabel("minPts")
 
         plt.show()
-
