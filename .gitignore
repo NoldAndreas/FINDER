@@ -2,6 +2,7 @@
 *.tif
 *.cpython-38.pyc
 *.pyc
+.DS_Store
 Modules/__pycache__/
 Code/__pycache__
 Code/CAML/__pycache__
