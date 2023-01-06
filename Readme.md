@@ -2,28 +2,17 @@
 
 -------------------------------
 
-
 # Installing required packages
 
-To install the dependencies, we recommend to use [anaconda](https://www.anaconda.com/products/distribution).
-Once you have `anaconda`, open the shell and create a new environment (we will call it `finder_env`) by typing:
+Set up a python environment and install the dependencies, e.g. using the 
+following commands: 
 
 ```shell
-conda create --name finder_env python=3.8
+python3 -m venv finder_env
+source finder_env/bin/activate
+pip install -r requirements.txt
 ```
-now navigate to `FINDER` folder in your computer and type
-
-```shell
-conda install -y --name finder_env -c conda-forge --file requirements.txt
-```
-This will install all the required packages.
-
-To activate the environment you can simply type:
-
-```shell
-conda activate finder_env
-```
-and then you can start using `FINDER`.
+This was tested using python version 3.8.12.
 
 ## Using FINDER
 
