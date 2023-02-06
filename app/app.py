@@ -25,7 +25,7 @@ modules = os.path.join(parent, "Modules")
 sys.path.append(modules)
 
 
-from Finder import Finder
+from finder import Finder
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 

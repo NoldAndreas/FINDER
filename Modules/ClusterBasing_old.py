@@ -11,7 +11,7 @@ from FigX4_Explore2DOptimizer_withReference_Streamlined_Functions import (
     GetOverlay,
     LoadPoints,
 )
-from Finder import Finder
+from finder import Finder
 from SimilarityScore import (
     getClusterSizesAll,
     getSimilarityScore,

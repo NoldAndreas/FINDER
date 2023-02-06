@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from Clustering_CAML import Clustering_CAML
-from Finder import Finder
+from finder import Finder
 from scipy.spatial.distance import euclidean
 from sklearn.cluster import DBSCAN, OPTICS
 

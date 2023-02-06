@@ -16,7 +16,7 @@ from FigY_Functions import (
     LoadPoints,
     PlotScatter,
 )
-from Finder import Finder
+from finder import Finder
 from SimilarityScore import (
     getClusterSizesAll,
     getSimilarityScore,

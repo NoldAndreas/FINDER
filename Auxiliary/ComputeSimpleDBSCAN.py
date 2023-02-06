@@ -9,7 +9,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 
 sys.path.append("../FINDER/Code/")
-from Finder import Finder
+from finder import Finder
 
 filename = sys.argv[1]
 filename = filename[:-4]

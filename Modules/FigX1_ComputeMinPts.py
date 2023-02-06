@@ -12,7 +12,7 @@ import seaborn as sns
 from Clustering_CAML import Clustering_CAML
 from DbscanLoop import DbscanLoop
 from Definitions import data_folder
-from Finder import Finder
+from finder import Finder
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 

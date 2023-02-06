@@ -15,7 +15,7 @@ import pandas as pd
 import seaborn as sns
 from DbscanLoop import DbscanLoop
 from Definitions import get_datafolder
-from Finder import Finder
+from finder import Finder
 from matplotlib import style
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors

@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pandas as pd
 import scipy.stats
-from Finder import Finder
+from finder import Finder
 from sklearn.cluster import DBSCAN
 
 # TODO: this has no use in the project, it's just imported.
