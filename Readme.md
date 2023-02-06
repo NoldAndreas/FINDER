@@ -1,6 +1,13 @@
 # FINDER
 
 -------------------------------
+by Andreas Nold and Pietro Verzelli
+
+--------------------------
+**NOTE: This repo is meant to reproduce the experiments in our paper [1]. 
+For a more updated version of the FINDER algorithm please refer to [this link](https://github.com/verzep/finder_code).**
+-------------------------------
+
 
 # Installing required packages
 
@@ -84,3 +91,19 @@ microscopy data", Nat. Comm. (2020) .
 3. To analyze the clustering results, run either ```Dash/dash-show-clustering``` or ```Analysis/analysis_3_plotting.ipynb```.
 
 4. An alternative, exploratory analysis is given in ```Analysis/FigY1_Exploration_SingleDataset.ipynb```, where a square window is analyzed. This is not optimized to work with the folders in ```Data_AnalysisOrganized```, and runs with a precomputed example in ```Data_Other/MikeData/Analysis_dataWindow_1```.
+-----------------------------------------
+[1] [Verzelli, Pietro, Andreas Nold, Chao Sun, Mike Heilemann, Erin M. Schuman, and Tatjana Tchumatchenko. "Unbiased choice of global clustering parameters for single-molecule localization microscopy." Scientific Reports 12, no. 1 (2022): 22561.](https://www.nature.com/articles/s41598-022-27074-1)
+
+Please consider citing it:
+```
+@article{verzelli2022unbiased,
+  title={Unbiased choice of global clustering parameters for single-molecule localization microscopy},
+  author={Verzelli, Pietro and Nold, Andreas and Sun, Chao and Heilemann, Mike and Schuman, Erin M and Tchumatchenko, Tatjana},
+  journal={Scientific Reports},
+  volume={12},
+  number={1},
+  pages={22561},
+  year={2022},
+  publisher={Nature Publishing Group UK London}
+}
+```
